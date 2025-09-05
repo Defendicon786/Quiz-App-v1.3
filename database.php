@@ -21,9 +21,9 @@ if (file_exists($autoload)) {
 require_once __DIR__ . '/logger.php';
 
 $db_host = $_ENV['DB_HOST'] ?? 'localhost';
-$db_name = $_ENV['DB_NAME'] ?? 'studyhtc_up';
-$db_user = $_ENV['DB_USER'] ?? 'studyhtc_hassan';
-$db_pass = $_ENV['DB_PASS'] ?? 'hassan@tariq786';
+$db_name = $_ENV['DB_NAME'] ?? 'database_name';
+$db_user = $_ENV['DB_USER'] ?? 'databaseusername';
+$db_pass = $_ENV['DB_PASS'] ?? 'databasepassworf';
 
 $conn = null;
 
