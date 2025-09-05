@@ -1,0 +1,38 @@
+/* Minimal theme overrides for a cleaner layout */
+body {
+    font-family: "Inter", "Roboto", sans-serif;
+    background-color: #fafafa;
+    color: #212529;
+}
+
+.navbar, .main-navbar {
+    box-shadow: none;
+    padding-top: 10px !important;
+    padding-bottom: 10px;
+    min-height: 50px;
+}
+
+.navbar .nav-link, .main-navbar .nav-link {
+    padding: 6px 12px !important;
+}
+
+.container {
+    max-width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.card {
+    border: 1px solid #e0e0e0;
+    box-shadow: none;
+}
+
+.footer {
+    background: #fff;
+}
+
+.main-raised, .main-container {
+    margin: 0;
+    box-shadow: none;
+    padding-bottom: 30px;
+}

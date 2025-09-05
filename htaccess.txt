@@ -1,0 +1,19 @@
+AddDefaultCharset Off
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType "text/html; charset=UTF-8" .html .php
+  AddType "text/css; charset=UTF-8" .css
+  AddType "application/javascript; charset=UTF-8" .js
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|png|jpg|jpeg|gif|svg|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(woff2)$">
+    Header set Content-Type "font/woff2"
+  </FilesMatch>
+  Header unset X-Frame-Options
+  Header unset X-XSS-Protection
+  Header unset Pragma
+  Header unset Expires
+</IfModule>

@@ -1,0 +1,58 @@
+/* Universal navigation bar styles */
+.main-navbar {
+  transition: all 0.3s ease;
+  padding-top: 2vh;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  height: 8vh;
+  min-height: 60px;
+}
+.main-navbar .navbar-brand {
+  color: #333 !important;
+  font-weight: 600;
+  font-size: 1.3rem;
+  padding: 0 1vw;
+}
+.main-navbar .nav-link {
+  white-space: nowrap;
+  color: #333 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.3vw;
+  font-weight: 500;
+  padding: 0.8vh 1vw !important;
+}
+.main-navbar .nav-link i {
+  font-size: 1.1rem;
+  color: #333;
+}
+.main-navbar .navbar-toggler {
+  border: none;
+  padding: 0;
+}
+.main-navbar .navbar-toggler-icon {
+  background-color: #333;
+  height: 2px;
+  margin: 4px 0;
+  display: block;
+  transition: all 0.3s ease;
+}
+@media (max-width: 991px) {
+  .main-navbar .navbar-nav {
+    margin-top: 1vh;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 1vh;
+    max-height: calc(100vh - 12vh);
+    overflow-y: auto;
+  }
+  .main-navbar .nav-item {
+    margin: 0.5vh 0;
+  }
+  .main-navbar .nav-link {
+    white-space: nowrap;
+    color: #333 !important;
+    padding: 0.8vh 1vw !important;
+  }
+}

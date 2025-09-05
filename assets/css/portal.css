@@ -1,0 +1,120 @@
+/* Shared styles extracted from manage_quizzes.php */
+.navbar {
+    transition: all 0.3s ease;
+    padding-top: 20px !important;
+    background-color: #fff !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-height: 60px;
+    height: auto;
+}
+.navbar-brand {
+    color: #333 !important;
+    font-weight: 600;
+    font-size: 1.3rem;
+    padding: 0 15px;
+}
+.nav-link {
+    white-space: nowrap;
+    color: #333 !important;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+    padding: 8px 15px !important;
+}
+.nav-link i {
+    font-size: 18px;
+    color: #333;
+}
+.navbar-toggler {
+    border: none;
+    padding: 0;
+}
+.navbar-toggler-icon {
+    background-color: #333;
+    height: 2px;
+    margin: 4px 0;
+    display: block;
+    transition: all 0.3s ease;
+}
+@media (max-width: 991px) {
+    .navbar .navbar-nav {
+        margin-top: 10px;
+        background: #fff;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        padding: 10px;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+    }
+    .navbar .nav-item {
+        margin: 5px 0;
+    }
+    .nav-link {
+        white-space: nowrap;
+        color: #333 !important;
+        padding: 8px 15px !important;
+    }
+}
+.footer {
+    padding: 30px 0;
+    margin-top: 50px;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+    position: relative;
+    width: 100%;
+    bottom: 0;
+}
+.footer .copyright {
+    color: #555;
+    font-size: 14px;
+    line-height: 1.8;
+}
+.footer .copyright strong {
+    font-weight: 600;
+    color: #333;
+}
+.footer .copyright .department {
+    color: #1a73e8;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+.footer .copyright .designer {
+    font-style: italic;
+    margin: 5px 0;
+}
+.footer .copyright .year {
+    background: #1a73e8;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 5px;
+}
+@media (max-width: 768px) {
+    .footer {
+        padding: 20px 0;
+        margin-top: 30px;
+    }
+    .footer .copyright {
+        font-size: 12px;
+    }
+}
+.table-actions .btn {
+    margin-right: 5px;
+}
+.page-header {
+    margin-top: 60px;
+    padding-top: 90px;
+    min-height: calc(100vh - 60px);
+    position: relative;
+}
+.card {
+    margin-bottom: 30px;
+}
+.main-container,
+.main.main-raised {
+    min-height: calc(100vh - 170px);
+    padding-bottom: 50px;
+    position: relative;
+}
