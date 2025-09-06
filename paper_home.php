@@ -164,7 +164,6 @@ $header = $_SESSION['paper_header'];
             </div>
         </main>
     <footer class="footer-text">
-      <p>Narowal Public School and College</p>
       <p>Developed and Maintained by Sir Hassan Tariq</p>
     </footer>
   </div>
