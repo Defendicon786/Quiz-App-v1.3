@@ -12,13 +12,13 @@ if (isset($_GET['pdf'])) {
     $token = $_GET['token'] ?? '';
     $pdfInfo = $_SESSION['generated_pdf'] ?? [];
     $pdfPath = $pdfInfo['path'] ?? '';
+    $pdfUrl  = $pdfInfo['url'] ?? '';
     $pdfToken = $pdfInfo['token'] ?? '';
-    $pdfName = $pdfInfo['filename'] ?? 'paper.pdf';
-    if (!$token || $token !== $pdfToken || !$pdfPath || !file_exists($pdfPath)) {
+    if (!$token || $token !== $pdfToken || !$pdfPath || !$pdfUrl || !file_exists($pdfPath)) {
         exit('PDF not found');
     }
 
-    // Update remaining uses before streaming
+    // Update remaining uses before redirecting
     $remaining = ($pdfInfo['uses'] ?? 1) - 1;
     $deleteAfter = $remaining <= 0;
     if ($deleteAfter) {
@@ -30,23 +30,18 @@ if (isset($_GET['pdf'])) {
     // Release the session lock for concurrent requests
     session_write_close();
 
-    // Clean any existing output buffers to prevent corruption
-    if (ob_get_level()) {
-        ob_end_clean();
-    }
+    // Redirect to the static file so the web server can handle delivery
+    header('Location: ' . $pdfUrl);
 
-    // Send PDF headers including size for efficient streaming
-    header('Content-Type: application/pdf');
-    $disposition = isset($_GET['download']) ? 'attachment' : 'inline';
-    header('Content-Disposition: ' . $disposition . '; filename="' . $pdfName . '"');
-    header('Content-Length: ' . filesize($pdfPath));
-
-    // Stream the PDF to the client
-    readfile($pdfPath);
-
-    // Remove the file if it has no remaining uses
+    // If this is the final permitted access, attempt to clean up the file
     if ($deleteAfter) {
-        unlink($pdfPath);
+        register_shutdown_function(function() use ($pdfPath) {
+            // Give the server a moment to initiate file transfer before deletion
+            sleep(2);
+            if (file_exists($pdfPath)) {
+                unlink($pdfPath);
+            }
+        });
     }
     exit;
 }
@@ -217,12 +212,22 @@ if (isset($_SESSION['generated_pdf']['path'])) {
     unset($_SESSION['generated_pdf']);
 }
 
-// Write PDF to a temporary file and store reference in session
-$tmpFile = tempnam(sys_get_temp_dir(), 'paper_');
-$mpdf->Output($tmpFile, \Mpdf\Output\Destination::FILE);
+// Write PDF to a web-accessible file and store reference in session
 $token = bin2hex(random_bytes(16));
+$baseExport = __DIR__ . '/export';
+if (!is_dir($baseExport)) {
+    mkdir($baseExport, 0777, true);
+}
+$tokenDir = $baseExport . '/' . $token;
+if (!is_dir($tokenDir)) {
+    mkdir($tokenDir, 0777, true);
+}
+$relativePath = 'export/' . $token . '/' . $pdfFileName;
+$absolutePath = $tokenDir . '/' . $pdfFileName;
+$mpdf->Output($absolutePath, \Mpdf\Output\Destination::FILE);
 $_SESSION['generated_pdf'] = [
-    'path' => $tmpFile,
+    'path' => $absolutePath,
+    'url'  => $relativePath,
     'token' => $token,
     'uses'  => 2,
     'filename' => $pdfFileName
