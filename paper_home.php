@@ -121,7 +121,7 @@ $header = $_SESSION['paper_header'];
             <div class="card">
               <form method="post" action="generate_paper.php">
                 <div class="card-header card-header-primary text-center">
-                  <h4 class="card-title">Generate Paper</h4>
+                  <h2 class="card-title">Generate Paper</h2>
                 </div>
                 <div class="card-body">
                         <div class="form-group">
