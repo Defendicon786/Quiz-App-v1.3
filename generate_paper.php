@@ -14,9 +14,18 @@ if (isset($_GET['pdf'])) {
         exit('PDF not found');
     }
 
+    // Build a safe filename based on the stored paper name
+    $fileName = $_SESSION['generated_pdf_name'] ?? 'paper';
+    $fileName = preg_replace('/[^A-Za-z0-9 _-]/', '_', $fileName);
+    $fileName = trim($fileName);
+    if ($fileName === '') {
+        $fileName = 'paper';
+    }
+    $fileName .= '.pdf';
+
     header('Content-Type: application/pdf');
     $disposition = isset($_GET['download']) ? 'attachment' : 'inline';
-    header('Content-Disposition: ' . $disposition . '; filename="paper.pdf"');
+    header('Content-Disposition: ' . $disposition . '; filename="' . $fileName . '"');
     echo $pdfContent;
     exit;
 }
@@ -152,6 +161,7 @@ $mpdf->WriteHTML($html);
 // Store PDF content in session for later download/view
 $pdfContent = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
 $_SESSION['generated_pdf'] = $pdfContent;
+$_SESSION['generated_pdf_name'] = $paperName;
 
 // Clean any existing output buffers to prevent corrupting the output
 if (ob_get_length()) {
