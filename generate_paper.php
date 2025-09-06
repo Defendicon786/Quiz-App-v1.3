@@ -17,18 +17,35 @@ if (isset($_GET['pdf'])) {
         exit('PDF not found');
     }
 
-    header('Content-Type: application/pdf');
-    $disposition = isset($_GET['download']) ? 'attachment' : 'inline';
-    header('Content-Disposition: ' . $disposition . '; filename="paper.pdf"');
-    readfile($pdfPath);
-
-    // Decrement remaining uses and clean up when done
+    // Update remaining uses before streaming
     $remaining = ($pdfInfo['uses'] ?? 1) - 1;
-    if ($remaining <= 0) {
-        unlink($pdfPath);
+    $deleteAfter = $remaining <= 0;
+    if ($deleteAfter) {
         unset($_SESSION['generated_pdf']);
     } else {
         $_SESSION['generated_pdf']['uses'] = $remaining;
+    }
+
+    // Release the session lock for concurrent requests
+    session_write_close();
+
+    // Clean any existing output buffers to prevent corruption
+    if (ob_get_level()) {
+        ob_end_clean();
+    }
+
+    // Send PDF headers including size for efficient streaming
+    header('Content-Type: application/pdf');
+    $disposition = isset($_GET['download']) ? 'attachment' : 'inline';
+    header('Content-Disposition: ' . $disposition . '; filename="paper.pdf"');
+    header('Content-Length: ' . filesize($pdfPath));
+
+    // Stream the PDF to the client
+    readfile($pdfPath);
+
+    // Remove the file if it has no remaining uses
+    if ($deleteAfter) {
+        unlink($pdfPath);
     }
     exit;
 }
