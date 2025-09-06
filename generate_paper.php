@@ -222,12 +222,12 @@ $tokenDir = $baseExport . '/' . $token;
 if (!is_dir($tokenDir)) {
     mkdir($tokenDir, 0777, true);
 }
-$relativePath = 'export/' . $token . '/' . $pdfFileName;
 $absolutePath = $tokenDir . '/' . $pdfFileName;
 $mpdf->Output($absolutePath, \Mpdf\Output\Destination::FILE);
+$relativeUrl = 'export/' . $token . '/' . rawurlencode($pdfFileName);
 $_SESSION['generated_pdf'] = [
     'path' => $absolutePath,
-    'url'  => $relativePath,
+    'url'  => '/' . $relativeUrl,
     'token' => $token,
     'uses'  => 2,
     'filename' => $pdfFileName
