@@ -25,7 +25,18 @@ $header = $_SESSION['paper_header'];
     <link href="./assets/css/sidebar.css" rel="stylesheet" />
     <link id="dark-mode-style" rel="stylesheet" href="./assets/css/dark-mode.css" />
     <style>
-        .footer-text { text-align: center; margin-top: 20px; padding: 20px 0; }
+        .footer-text {
+            width: 100%;
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .footer-text .developer-credit {
+            margin-top: 4px;
+        }
         body.dark-mode .main { background: transparent; }
         .card { background: #1e1e2f; color: #fff; }
         .card-header.card-header-primary { background: #1e1e2f; color: #fff; border-bottom: 1px solid #11111a; }
@@ -165,7 +176,7 @@ $header = $_SESSION['paper_header'];
         </main>
     <footer class="footer-text">
       <p>Narowal Public School and College</p>
-      <p>Developed and Maintained by Sir Hassan Tariq</p>
+      <p class="developer-credit">Developed and Maintained by Sir Hassan Tariq</p>
     </footer>
   </div>
 </div>
