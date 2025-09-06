@@ -101,13 +101,13 @@ $header = $_SESSION['paper_header'];
                         </div>
                         <div class="form-group">
                           <label class="bmd-label-floating">Select Chapter</label>
-                          <select name="chapter_id" id="chapter_id" class="form-control" required>
+                          <select name="chapter_ids[]" id="chapter_ids" class="form-control" multiple required>
                             <option value="">Select Chapter</option>
                           </select>
                         </div>
                         <div class="form-group">
                           <label class="bmd-label-floating">Select Topic</label>
-                          <select name="topic_id" id="topic_id" class="form-control">
+                          <select name="topic_ids[]" id="topic_ids" class="form-control" multiple>
                             <option value="">Select Topic</option>
                           </select>
                         </div>
@@ -198,8 +198,8 @@ $header = $_SESSION['paper_header'];
 document.addEventListener('DOMContentLoaded', function() {
     const classSelect = document.getElementById('class_id');
     const subjectSelect = document.getElementById('subject_id');
-    const chapterSelect = document.getElementById('chapter_id');
-    const topicSelect = document.getElementById('topic_id');
+    const chapterSelect = document.getElementById('chapter_ids');
+    const topicSelect = document.getElementById('topic_ids');
     const manualBtn = document.getElementById('manual-select');
     const manualWrapper = document.getElementById('manual-select-wrapper');
     const questionModal = document.getElementById('question-modal');
@@ -220,12 +220,34 @@ document.addEventListener('DOMContentLoaded', function() {
         fill: document.getElementById('fill-count'),
         numerical: document.getElementById('numerical-count')
     };
+    let allChapterIds = [];
+    let allTopicIds = [];
+
+    function handleAllOption(select) {
+        const allOption = select.querySelector('option[value="all"]');
+        if (allOption && allOption.selected) {
+            Array.from(select.options).forEach(opt => {
+                if (opt.value !== 'all') opt.selected = true;
+            });
+            allOption.selected = false;
+        }
+    }
+
+    function getSelectedValues(select, allValues) {
+        const values = Array.from(select.selectedOptions).map(o => o.value).filter(v => v && v !== 'all');
+        if (select.querySelector('option[value="all"]') && select.querySelector('option[value="all"]').selected) {
+            return allValues;
+        }
+        return values;
+    }
 
     classSelect.addEventListener('change', function() {
         const classId = this.value;
         subjectSelect.innerHTML = '<option value="">Select Subject</option>';
         chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
         topicSelect.innerHTML = '<option value="">Select Topic</option>';
+        allChapterIds = [];
+        allTopicIds = [];
         if (!classId) return;
         fetch('get_subjects.php?class_id=' + classId)
             .then(r => r.json())
@@ -239,13 +261,16 @@ document.addEventListener('DOMContentLoaded', function() {
     subjectSelect.addEventListener('change', function() {
         const classId = classSelect.value;
         const subjectId = this.value;
-        chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
-        topicSelect.innerHTML = '<option value="">Select Topic</option>';
+        chapterSelect.innerHTML = '<option value="all">All Chapters</option>';
+        topicSelect.innerHTML = '<option value="all">All Topics</option>';
+        allChapterIds = [];
+        allTopicIds = [];
         if (!classId || !subjectId) return;
         fetch(`get_chapters.php?class_id=${classId}&subject_id=${subjectId}`)
             .then(r => r.json())
             .then(data => {
                 if (Array.isArray(data)) {
+                    allChapterIds = data.map(c => c.chapter_id);
                     data.forEach(c => {
                         chapterSelect.insertAdjacentHTML('beforeend', `<option value="${c.chapter_id}">${c.chapter_name}</option>`);
                     });
@@ -254,25 +279,34 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     chapterSelect.addEventListener('change', function() {
-        const chapterId = this.value;
-        topicSelect.innerHTML = '<option value="">Select Topic</option>';
-        if (!chapterId) return;
-        fetch('get_topics.php?chapter_id=' + chapterId)
+        handleAllOption(chapterSelect);
+        const chapterIds = getSelectedValues(chapterSelect, allChapterIds);
+        topicSelect.innerHTML = '<option value="all">All Topics</option>';
+        allTopicIds = [];
+        if (!chapterIds.length) { updateCounts(); return; }
+        fetch('get_topics.php?chapter_ids=' + chapterIds.join(','))
             .then(r => r.json())
             .then(data => {
+                allTopicIds = data.map(t => t.topic_id);
                 data.forEach(t => {
                     topicSelect.insertAdjacentHTML('beforeend', `<option value="${t.topic_id}">${t.topic_name}</option>`);
                 });
+                updateCounts();
             });
     });
 
+    topicSelect.addEventListener('change', function() {
+        handleAllOption(topicSelect);
+        updateCounts();
+    });
+
     function updateCounts() {
-        const chapterId = chapterSelect.value;
-        const topicId = topicSelect.value;
-        manualWrapper.style.display = topicId ? 'block' : 'none';
-        if (!chapterId) return;
-        let url = `get_question_counts.php?chapter_ids=${chapterId}`;
-        if (topicId) url += `&topic_ids=${topicId}`;
+        const chapterIds = getSelectedValues(chapterSelect, allChapterIds);
+        const topicIds = getSelectedValues(topicSelect, allTopicIds);
+        manualWrapper.style.display = topicIds.length ? 'block' : 'none';
+        if (!chapterIds.length) return;
+        let url = `get_question_counts.php?chapter_ids=${chapterIds.join(',')}`;
+        if (topicIds.length) url += `&topic_ids=${topicIds.join(',')}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -284,13 +318,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    topicSelect.addEventListener('change', updateCounts);
-    chapterSelect.addEventListener('change', updateCounts);
-
     manualBtn.addEventListener('click', function() {
         questionLists.innerHTML = '';
-        const chapterId = chapterSelect.value;
-        const topicId = topicSelect.value;
+        const chapterIds = getSelectedValues(chapterSelect, allChapterIds);
+        const topicIds = getSelectedValues(topicSelect, allTopicIds);
         typeMap.forEach(t => {
             const block = document.createElement('div');
             block.className = 'type-block';
@@ -298,8 +329,8 @@ document.addEventListener('DOMContentLoaded', function() {
             questionLists.appendChild(block);
             const params = new URLSearchParams();
             params.append('type', t.key);
-            params.append('chapter_ids', chapterId);
-            if (topicId) params.append('topic_ids', topicId);
+            params.append('chapter_ids', chapterIds.join(','));
+            if (topicIds.length) params.append('topic_ids', topicIds.join(','));
             fetch('get_questions.php', {method:'POST', body: params})
                 .then(r => r.json())
                 .then(data => {
