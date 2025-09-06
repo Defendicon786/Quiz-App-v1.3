@@ -21,6 +21,7 @@ $header = $_SESSION['paper_header'];
     <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,700|Material+Icons" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link href="./assets/css/material-kit.css?v=2.0.4" rel="stylesheet" />
     <link href="./assets/css/sidebar.css" rel="stylesheet" />
     <link id="dark-mode-style" rel="stylesheet" href="./assets/css/dark-mode.css" />
@@ -42,6 +43,47 @@ $header = $_SESSION['paper_header'];
         .card-header.card-header-primary { background: #1e1e2f; color: #fff; border-bottom: 1px solid #11111a; }
         .form-control { background-color: #424242; color: #fff; border-color: #666; }
         .form-control::placeholder { color: #bbb; }
+
+        /* Dark dropdowns for class/subject/chapter/topic selection */
+        #class_id,
+        #subject_id,
+        #chapter_ids,
+        #topic_ids {
+            background-color: #11111a;
+            color: #fff;
+        }
+        #class_id option,
+        #subject_id option,
+        #chapter_ids option,
+        #topic_ids option {
+            background-color: #11111a;
+            color: #fff;
+        }
+        .select2-container--default .select2-selection--single,
+        .select2-container--default .select2-selection--multiple {
+            background-color: #11111a;
+            color: #fff;
+            border: 1px solid #11111a;
+        }
+        .select2-dropdown,
+        .select2-search__field,
+        .select2-results__option {
+            background-color: #11111a;
+            color: #fff;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered,
+        .select2-container--default .select2-selection--single .select2-selection__placeholder,
+        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+            color: #fff;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #11111a;
+            border: 1px solid #11111a;
+            color: #fff;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: #fff;
+        }
         #question-modal {
             position: fixed;
             top: 0;
@@ -194,6 +236,7 @@ $header = $_SESSION['paper_header'];
 <script src="./assets/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
 <script src="./assets/js/plugins/moment.min.js"></script>
 <script src="./assets/js/material-kit.js?v=2.0.4" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const classSelect = document.getElementById('class_id');
@@ -223,13 +266,23 @@ document.addEventListener('DOMContentLoaded', function() {
     let allChapterIds = [];
     let allTopicIds = [];
 
+    $('#class_id, #subject_id, #chapter_ids, #topic_ids').select2({
+        width: '100%',
+        minimumResultsForSearch: 10
+    });
+
     function handleAllOption(select) {
         const allOption = select.querySelector('option[value="all"]');
         if (allOption && allOption.selected) {
+            const values = [];
             Array.from(select.options).forEach(opt => {
-                if (opt.value !== 'all') opt.selected = true;
+                if (opt.value !== 'all') {
+                    opt.selected = true;
+                    values.push(opt.value);
+                }
             });
             allOption.selected = false;
+            $(select).val(values).trigger('change.select2');
         }
     }
 
@@ -243,9 +296,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     classSelect.addEventListener('change', function() {
         const classId = this.value;
-        subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-        chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
-        topicSelect.innerHTML = '<option value="">Select Topic</option>';
+        $(subjectSelect).empty().append('<option value="">Select Subject</option>').val(null).trigger('change.select2');
+        $(chapterSelect).empty().append('<option value="all">All Chapters</option>').val(null).trigger('change.select2');
+        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change.select2');
         allChapterIds = [];
         allTopicIds = [];
         if (!classId) return;
@@ -253,16 +306,17 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(r => r.json())
             .then(data => {
                 data.forEach(s => {
-                    subjectSelect.insertAdjacentHTML('beforeend', `<option value="${s.subject_id}">${s.subject_name}</option>`);
+                    $(subjectSelect).append(new Option(s.subject_name, s.subject_id));
                 });
+                $(subjectSelect).trigger('change.select2');
             });
     });
 
     subjectSelect.addEventListener('change', function() {
         const classId = classSelect.value;
         const subjectId = this.value;
-        chapterSelect.innerHTML = '<option value="all">All Chapters</option>';
-        topicSelect.innerHTML = '<option value="all">All Topics</option>';
+        $(chapterSelect).empty().append('<option value="all">All Chapters</option>').val(null).trigger('change.select2');
+        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change.select2');
         allChapterIds = [];
         allTopicIds = [];
         if (!classId || !subjectId) return;
@@ -272,8 +326,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (Array.isArray(data)) {
                     allChapterIds = data.map(c => c.chapter_id);
                     data.forEach(c => {
-                        chapterSelect.insertAdjacentHTML('beforeend', `<option value="${c.chapter_id}">${c.chapter_name}</option>`);
+                        $(chapterSelect).append(new Option(c.chapter_name, c.chapter_id));
                     });
+                    $(chapterSelect).trigger('change.select2');
                 }
             });
     });
@@ -281,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
     chapterSelect.addEventListener('change', function() {
         handleAllOption(chapterSelect);
         const chapterIds = getSelectedValues(chapterSelect, allChapterIds);
-        topicSelect.innerHTML = '<option value="all">All Topics</option>';
+        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change.select2');
         allTopicIds = [];
         if (!chapterIds.length) { updateCounts(); return; }
         fetch('get_topics.php?chapter_ids=' + chapterIds.join(','))
@@ -289,8 +344,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 allTopicIds = data.map(t => t.topic_id);
                 data.forEach(t => {
-                    topicSelect.insertAdjacentHTML('beforeend', `<option value="${t.topic_id}">${t.topic_name}</option>`);
+                    $(topicSelect).append(new Option(t.topic_name, t.topic_id));
                 });
+                $(topicSelect).trigger('change.select2');
                 updateCounts();
             });
     });
