@@ -105,11 +105,50 @@ foreach ($sections as $title => $questions) {
     $html .= '</ol>';
 }
 
-$mpdf = new \Mpdf\Mpdf();
-if (ob_get_length()) {
-    ob_end_clean();
-}
-$mpdf->WriteHTML($html);
-$mpdf->Output('paper.pdf', 'I');
+ $mpdf = new \Mpdf\Mpdf();
+ $mpdf->WriteHTML($html);
+ 
+ // Save PDF to a file instead of forcing inline display
+ $filename = 'paper_' . time() . '.pdf';
+ $filepath = __DIR__ . '/export/' . $filename;
+ $mpdf->Output($filepath, 'F');
+ 
+ if (ob_get_length()) {
+     ob_end_clean();
+ }
+ 
+ $fileurl = 'export/' . $filename;
+ ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generated Paper</title>
+    <style>
+        .download-btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 20px;
+        }
+        iframe {
+            width: 100%;
+            height: 90vh;
+            border: none;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+    <div style="text-align:center;">
+        <a href="<?php echo htmlspecialchars($fileurl); ?>" class="download-btn" download>Download PDF</a>
+    </div>
+    <iframe src="<?php echo htmlspecialchars($fileurl); ?>"></iframe>
+</body>
+</html>
+<?php
 exit;
 ?>
