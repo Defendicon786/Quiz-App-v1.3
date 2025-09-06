@@ -13,6 +13,7 @@ if (isset($_GET['pdf'])) {
     $pdfInfo = $_SESSION['generated_pdf'] ?? [];
     $pdfPath = $pdfInfo['path'] ?? '';
     $pdfToken = $pdfInfo['token'] ?? '';
+    $pdfName = $pdfInfo['filename'] ?? 'paper.pdf';
     if (!$token || $token !== $pdfToken || !$pdfPath || !file_exists($pdfPath)) {
         exit('PDF not found');
     }
@@ -37,7 +38,7 @@ if (isset($_GET['pdf'])) {
     // Send PDF headers including size for efficient streaming
     header('Content-Type: application/pdf');
     $disposition = isset($_GET['download']) ? 'attachment' : 'inline';
-    header('Content-Disposition: ' . $disposition . '; filename="paper.pdf"');
+    header('Content-Disposition: ' . $disposition . '; filename="' . $pdfName . '"');
     header('Content-Length: ' . filesize($pdfPath));
 
     // Stream the PDF to the client
@@ -81,6 +82,10 @@ if (!$autoloadLoaded) {
 include 'database.php';
 
 $paperName = trim($_POST['paper_name'] ?? 'Question Paper');
+$fileBase = preg_replace('/[^A-Za-z0-9 _-]/', '_', $paperName);
+$fileBase = trim($fileBase);
+if ($fileBase === '') { $fileBase = 'paper'; }
+$pdfFileName = $fileBase . '.pdf';
 $classId = intval($_POST['class_id'] ?? 0);
 $subjectId = intval($_POST['subject_id'] ?? 0);
 $chapterId = intval($_POST['chapter_id'] ?? 0);
@@ -219,7 +224,8 @@ $token = bin2hex(random_bytes(16));
 $_SESSION['generated_pdf'] = [
     'path' => $tmpFile,
     'token' => $token,
-    'uses'  => 2
+    'uses'  => 2,
+    'filename' => $pdfFileName
 ];
 
 // Clean any existing output buffers to prevent corrupting the output
