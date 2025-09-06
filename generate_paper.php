@@ -127,10 +127,34 @@ foreach ($sections as $title => $questions) {
 }
 
 $mpdf = new \Mpdf\Mpdf();
+$mpdf->WriteHTML($html);
+$pdfContent = $mpdf->Output('', 'S');
 if (ob_get_length()) {
     ob_end_clean();
 }
-$mpdf->WriteHTML($html);
-$mpdf->Output('paper.pdf', 'I');
+$base64Pdf = base64_encode($pdfContent);
+$downloadUrl = 'data:application/pdf;base64,' . $base64Pdf;
+$title = htmlspecialchars($paperName, ENT_QUOTES, 'UTF-8');
+$htmlOutput = <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{$title}</title>
+<style>
+    body,html{margin:0;padding:0;height:100%;}
+    iframe{width:100%;height:90vh;border:none;}
+    .download-btn{display:block;width:100%;text-align:center;padding:15px;background:#007bff;color:#fff;text-decoration:none;font-size:18px;}
+</style>
+</head>
+<body>
+<iframe src="$downloadUrl"></iframe>
+<a class="download-btn" href="$downloadUrl" download="paper.pdf">Download PDF</a>
+</body>
+</html>
+HTML;
+
+echo $htmlOutput;
 exit;
 ?>
