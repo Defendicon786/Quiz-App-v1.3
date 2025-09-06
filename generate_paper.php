@@ -1,6 +1,26 @@
 <?php
 session_start();
 ob_start();
+
+// Serve the previously generated PDF when requested
+if (isset($_GET['pdf'])) {
+    if (!isset($_SESSION['paperloggedin']) || $_SESSION['paperloggedin'] !== true) {
+        header('Location: paper_login.php');
+        exit;
+    }
+
+    $pdfContent = $_SESSION['generated_pdf'] ?? '';
+    if (!$pdfContent) {
+        exit('PDF not found');
+    }
+
+    header('Content-Type: application/pdf');
+    $disposition = isset($_GET['download']) ? 'attachment' : 'inline';
+    header('Content-Disposition: ' . $disposition . '; filename="paper.pdf"');
+    echo $pdfContent;
+    exit;
+}
+
 if (!isset($_SESSION['paperloggedin']) || $_SESSION['paperloggedin'] !== true) {
     header('Location: paper_login.php');
     exit;
@@ -129,14 +149,21 @@ foreach ($sections as $title => $questions) {
 $mpdf = new \Mpdf\Mpdf();
 $mpdf->WriteHTML($html);
 
-// Clean any existing output buffers to prevent corrupting the PDF
+// Store PDF content in session for later download/view
+$pdfContent = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
+$_SESSION['generated_pdf'] = $pdfContent;
+
+// Clean any existing output buffers to prevent corrupting the output
 if (ob_get_length()) {
     ob_end_clean();
 }
 
-// Stream the PDF directly to the browser so it can be viewed inline
-header('Content-Type: application/pdf');
-header('Content-Disposition: inline; filename="paper.pdf"');
-$mpdf->Output('paper.pdf', \Mpdf\Output\Destination::INLINE);
+// Display HTML with download button and embedded PDF
+echo '<!DOCTYPE html><html><head><title>' . htmlspecialchars($paperName) . '</title></head><body>';
+echo '<div style="text-align:center; margin-bottom:10px;">';
+echo '<a href="generate_paper.php?pdf=1&download=1" style="padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;">Download PDF</a>';
+echo '</div>';
+echo '<iframe src="generate_paper.php?pdf=1" style="width:100%;height:90vh;" frameborder="0"></iframe>';
+echo '</body></html>';
 exit;
 ?>
