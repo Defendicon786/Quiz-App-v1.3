@@ -9,15 +9,27 @@ if (isset($_GET['pdf'])) {
         exit;
     }
 
-    $pdfContent = $_SESSION['generated_pdf'] ?? '';
-    if (!$pdfContent) {
+    $token = $_GET['token'] ?? '';
+    $pdfInfo = $_SESSION['generated_pdf'] ?? [];
+    $pdfPath = $pdfInfo['path'] ?? '';
+    $pdfToken = $pdfInfo['token'] ?? '';
+    if (!$token || $token !== $pdfToken || !$pdfPath || !file_exists($pdfPath)) {
         exit('PDF not found');
     }
 
     header('Content-Type: application/pdf');
     $disposition = isset($_GET['download']) ? 'attachment' : 'inline';
     header('Content-Disposition: ' . $disposition . '; filename="paper.pdf"');
-    echo $pdfContent;
+    readfile($pdfPath);
+
+    // Decrement remaining uses and clean up when done
+    $remaining = ($pdfInfo['uses'] ?? 1) - 1;
+    if ($remaining <= 0) {
+        unlink($pdfPath);
+        unset($_SESSION['generated_pdf']);
+    } else {
+        $_SESSION['generated_pdf']['uses'] = $remaining;
+    }
     exit;
 }
 
@@ -149,9 +161,24 @@ foreach ($sections as $title => $questions) {
 $mpdf = new \Mpdf\Mpdf();
 $mpdf->WriteHTML($html);
 
-// Store PDF content in session for later download/view
-$pdfContent = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
-$_SESSION['generated_pdf'] = $pdfContent;
+// Remove previously generated PDF if it exists
+if (isset($_SESSION['generated_pdf']['path'])) {
+    $oldPath = $_SESSION['generated_pdf']['path'];
+    if ($oldPath && file_exists($oldPath)) {
+        unlink($oldPath);
+    }
+    unset($_SESSION['generated_pdf']);
+}
+
+// Write PDF to a temporary file and store reference in session
+$tmpFile = tempnam(sys_get_temp_dir(), 'paper_');
+$mpdf->Output($tmpFile, \Mpdf\Output\Destination::FILE);
+$token = bin2hex(random_bytes(16));
+$_SESSION['generated_pdf'] = [
+    'path' => $tmpFile,
+    'token' => $token,
+    'uses'  => 2
+];
 
 // Clean any existing output buffers to prevent corrupting the output
 if (ob_get_length()) {
@@ -161,9 +188,9 @@ if (ob_get_length()) {
 // Display HTML with download button and embedded PDF
 echo '<!DOCTYPE html><html><head><title>' . htmlspecialchars($paperName) . '</title></head><body>';
 echo '<div style="text-align:center; margin-bottom:10px;">';
-echo '<a href="generate_paper.php?pdf=1&download=1" style="padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;">Download PDF</a>';
+echo '<a href="generate_paper.php?pdf=1&download=1&token=' . urlencode($token) . '" style="padding:10px 20px;background:#007bff;color:#fff;text-decoration:none;border-radius:4px;">Download PDF</a>';
 echo '</div>';
-echo '<iframe src="generate_paper.php?pdf=1" style="width:100%;height:90vh;" frameborder="0"></iframe>';
+echo '<iframe src="generate_paper.php?pdf=1&token=' . urlencode($token) . '" style="width:100%;height:90vh;" frameborder="0"></iframe>';
 echo '</body></html>';
 exit;
 ?>
