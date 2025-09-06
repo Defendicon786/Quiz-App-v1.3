@@ -9,8 +9,8 @@ if (isset($_GET['pdf'])) {
         exit;
     }
 
-    $pdfContent = $_SESSION['generated_pdf'] ?? '';
-    if (!$pdfContent) {
+    $pdfPath = $_SESSION['generated_pdf_path'] ?? '';
+    if (!$pdfPath || !file_exists($pdfPath)) {
         exit('PDF not found');
     }
 
@@ -26,7 +26,7 @@ if (isset($_GET['pdf'])) {
     header('Content-Type: application/pdf');
     $disposition = isset($_GET['download']) ? 'attachment' : 'inline';
     header('Content-Disposition: ' . $disposition . '; filename="' . $fileName . '"');
-    echo $pdfContent;
+    readfile($pdfPath);
     exit;
 }
 
@@ -158,9 +158,15 @@ foreach ($sections as $title => $questions) {
 $mpdf = new \Mpdf\Mpdf();
 $mpdf->WriteHTML($html);
 
-// Store PDF content in session for later download/view
+// Store PDF to a temporary file and keep path in session for later download/view
 $pdfContent = $mpdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
-$_SESSION['generated_pdf'] = $pdfContent;
+
+if (!empty($_SESSION['generated_pdf_path']) && file_exists($_SESSION['generated_pdf_path'])) {
+    @unlink($_SESSION['generated_pdf_path']);
+}
+$tempFile = tempnam(sys_get_temp_dir(), 'paper_');
+file_put_contents($tempFile, $pdfContent);
+$_SESSION['generated_pdf_path'] = $tempFile;
 $_SESSION['generated_pdf_name'] = $paperName;
 
 // Clean any existing output buffers to prevent corrupting the output
