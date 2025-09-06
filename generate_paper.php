@@ -88,8 +88,8 @@ if ($fileBase === '') { $fileBase = 'paper'; }
 $pdfFileName = $fileBase . '.pdf';
 $classId = intval($_POST['class_id'] ?? 0);
 $subjectId = intval($_POST['subject_id'] ?? 0);
-$chapterId = intval($_POST['chapter_id'] ?? 0);
-$topicId = isset($_POST['topic_id']) && $_POST['topic_id'] !== '' ? intval($_POST['topic_id']) : null;
+$chapterIds = isset($_POST['chapter_ids']) ? array_filter(array_map('intval', (array)$_POST['chapter_ids'])) : [];
+$topicIds = isset($_POST['topic_ids']) ? array_filter(array_map('intval', (array)$_POST['topic_ids'])) : [];
 $mcq = intval($_POST['mcq'] ?? 0);
 $short = intval($_POST['short'] ?? 0);
 $essay = intval($_POST['essay'] ?? 0);
@@ -100,46 +100,30 @@ $mode = $_POST['mode'] ?? 'random';
 $logo = $_SESSION['paper_logo'] ?? '';
 $header = $_SESSION['paper_header'] ?? '';
 
-function fetch_questions($conn, $table, $fields, $chapterId, $topicId, $limit) {
-    if ($limit <= 0 || !$conn) return [];
+function fetch_questions($conn, $table, $fields, $chapterIds, $topicIds, $limit) {
+    if ($limit <= 0 || !$conn || empty($chapterIds)) return [];
 
-    // Build base query for filtering by chapter and topic
-    $base = "FROM $table WHERE chapter_id=?";
-    $types = 'i';
-    $params = [$chapterId];
-    if ($topicId) { $base .= " AND topic_id=?"; $types .= 'i'; $params[] = $topicId; }
-
-    // Fetch all matching IDs
-    $stmt = $conn->prepare("SELECT id $base");
+    $chapterPlaceholders = implode(',', array_fill(0, count($chapterIds), '?'));
+    $types = str_repeat('i', count($chapterIds));
+    $params = $chapterIds;
+    $sql = "SELECT $fields FROM $table WHERE chapter_id IN ($chapterPlaceholders)";
+    if (!empty($topicIds)) {
+        $topicPlaceholders = implode(',', array_fill(0, count($topicIds), '?'));
+        $sql .= " AND topic_id IN ($topicPlaceholders)";
+        $types .= str_repeat('i', count($topicIds));
+        $params = array_merge($params, $topicIds);
+    }
+    $sql .= " ORDER BY RAND() LIMIT ?";
+    $types .= 'i';
+    $params[] = $limit;
+    $stmt = $conn->prepare($sql);
     if (!$stmt) return [];
     $stmt->bind_param($types, ...$params);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $ids = [];
-    while ($row = $res->fetch_assoc()) { $ids[] = (int)$row['id']; }
-    $stmt->close();
-
-    if (empty($ids)) return [];
-
-    // Randomly sample required number of IDs
-    if (count($ids) > $limit) {
-        shuffle($ids);
-        $ids = array_slice($ids, 0, $limit);
-    }
-
-    // Fetch questions for selected IDs
-    $placeholders = implode(',', array_fill(0, count($ids), '?'));
-    $stmt = $conn->prepare("SELECT $fields FROM $table WHERE id IN ($placeholders)");
-    if (!$stmt) return [];
-    $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
     $stmt->execute();
     $res = $stmt->get_result();
     $qs = [];
     while ($row = $res->fetch_assoc()) { $qs[] = $row; }
     $stmt->close();
-
-    // Shuffle final questions to randomize output order
-    shuffle($qs);
     return $qs;
 }
 
@@ -171,11 +155,11 @@ if ($mode === 'manual') {
         }
     }
 } else {
-    $sections['MCQs'] = fetch_questions($conn, 'mcqdb', 'question, optiona, optionb, optionc, optiond', $chapterId, $topicId, $mcq);
-    $sections['Short Questions'] = fetch_questions($conn, 'shortanswer', 'question', $chapterId, $topicId, $short);
-    $sections['Long Questions'] = fetch_questions($conn, 'essay', 'question', $chapterId, $topicId, $essay);
-    $sections['Fill in the Blanks'] = fetch_questions($conn, 'fillintheblanks', 'question', $chapterId, $topicId, $fill);
-    $sections['Numerical'] = fetch_questions($conn, 'numericaldb', 'question', $chapterId, $topicId, $numerical);
+    $sections['MCQs'] = fetch_questions($conn, 'mcqdb', 'question, optiona, optionb, optionc, optiond', $chapterIds, $topicIds, $mcq);
+    $sections['Short Questions'] = fetch_questions($conn, 'shortanswer', 'question', $chapterIds, $topicIds, $short);
+    $sections['Long Questions'] = fetch_questions($conn, 'essay', 'question', $chapterIds, $topicIds, $essay);
+    $sections['Fill in the Blanks'] = fetch_questions($conn, 'fillintheblanks', 'question', $chapterIds, $topicIds, $fill);
+    $sections['Numerical'] = fetch_questions($conn, 'numericaldb', 'question', $chapterIds, $topicIds, $numerical);
 }
 if ($conn) {
     $conn->close();

@@ -21,6 +21,7 @@ $header = $_SESSION['paper_header'];
     <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,700|Material+Icons" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link href="./assets/css/material-kit.css?v=2.0.4" rel="stylesheet" />
     <link href="./assets/css/sidebar.css" rel="stylesheet" />
     <link id="dark-mode-style" rel="stylesheet" href="./assets/css/dark-mode.css" />
@@ -42,6 +43,47 @@ $header = $_SESSION['paper_header'];
         .card-header.card-header-primary { background: #1e1e2f; color: #fff; border-bottom: 1px solid #11111a; }
         .form-control { background-color: #424242; color: #fff; border-color: #666; }
         .form-control::placeholder { color: #bbb; }
+
+        /* Dark dropdowns for class/subject/chapter/topic selection */
+        #class_id,
+        #subject_id,
+        #chapter_ids,
+        #topic_ids {
+            background-color: #11111a;
+            color: #fff;
+        }
+        #class_id option,
+        #subject_id option,
+        #chapter_ids option,
+        #topic_ids option {
+            background-color: #11111a;
+            color: #fff;
+        }
+        .select2-container--default .select2-selection--single,
+        .select2-container--default .select2-selection--multiple {
+            background-color: #11111a;
+            color: #fff;
+            border: 1px solid #11111a;
+        }
+        .select2-dropdown,
+        .select2-search__field,
+        .select2-results__option {
+            background-color: #11111a;
+            color: #fff;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered,
+        .select2-container--default .select2-selection--single .select2-selection__placeholder,
+        .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+            color: #fff;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #11111a;
+            border: 1px solid #11111a;
+            color: #fff;
+        }
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: #fff;
+        }
         #question-modal {
             position: fixed;
             top: 0;
@@ -101,13 +143,13 @@ $header = $_SESSION['paper_header'];
                         </div>
                         <div class="form-group">
                           <label class="bmd-label-floating">Select Chapter</label>
-                          <select name="chapter_id" id="chapter_id" class="form-control" required>
+                          <select name="chapter_ids[]" id="chapter_ids" class="form-control" multiple required>
                             <option value="">Select Chapter</option>
                           </select>
                         </div>
                         <div class="form-group">
                           <label class="bmd-label-floating">Select Topic</label>
-                          <select name="topic_id" id="topic_id" class="form-control">
+                          <select name="topic_ids[]" id="topic_ids" class="form-control" multiple>
                             <option value="">Select Topic</option>
                           </select>
                         </div>
@@ -194,12 +236,13 @@ $header = $_SESSION['paper_header'];
 <script src="./assets/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
 <script src="./assets/js/plugins/moment.min.js"></script>
 <script src="./assets/js/material-kit.js?v=2.0.4" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const classSelect = document.getElementById('class_id');
     const subjectSelect = document.getElementById('subject_id');
-    const chapterSelect = document.getElementById('chapter_id');
-    const topicSelect = document.getElementById('topic_id');
+    const chapterSelect = document.getElementById('chapter_ids');
+    const topicSelect = document.getElementById('topic_ids');
     const manualBtn = document.getElementById('manual-select');
     const manualWrapper = document.getElementById('manual-select-wrapper');
     const questionModal = document.getElementById('question-modal');
@@ -220,59 +263,129 @@ document.addEventListener('DOMContentLoaded', function() {
         fill: document.getElementById('fill-count'),
         numerical: document.getElementById('numerical-count')
     };
+    let allChapterIds = [];
+    let allTopicIds = [];
 
-    classSelect.addEventListener('change', function() {
+    $('#class_id, #subject_id, #chapter_ids, #topic_ids').select2({
+        width: '100%',
+        minimumResultsForSearch: 10
+    });
+
+    function handleAllOption(select) {
+        const allOption = select.querySelector('option[value="all"]');
+        if (allOption && allOption.selected) {
+            const values = [];
+            Array.from(select.options).forEach(opt => {
+                if (opt.value !== 'all') {
+                    opt.selected = true;
+                    values.push(opt.value);
+                }
+            });
+            allOption.selected = false;
+            $(select).val(values).trigger('change');
+        }
+    }
+
+    function getSelectedValues(select, allValues) {
+        const values = Array.from(select.selectedOptions).map(o => o.value).filter(v => v && v !== 'all');
+        if (select.querySelector('option[value="all"]') && select.querySelector('option[value="all"]').selected) {
+            return allValues;
+        }
+        return values;
+    }
+
+    function resetCounts() {
+        counts.mcq.textContent = 0;
+        counts.short.textContent = 0;
+        counts.essay.textContent = 0;
+        counts.fill.textContent = 0;
+        counts.numerical.textContent = 0;
+        manualWrapper.style.display = 'none';
+    }
+
+    $(classSelect).on('change', function() {
         const classId = this.value;
-        subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-        chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
-        topicSelect.innerHTML = '<option value="">Select Topic</option>';
+        $(subjectSelect).empty().append('<option value="">Select Subject</option>').val(null).trigger('change');
+        $(chapterSelect).empty().append('<option value="all">All Chapters</option>').val(null).trigger('change');
+        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change');
+        allChapterIds = [];
+        allTopicIds = [];
+        resetCounts();
         if (!classId) return;
         fetch('get_subjects.php?class_id=' + classId)
             .then(r => r.json())
             .then(data => {
                 data.forEach(s => {
-                    subjectSelect.insertAdjacentHTML('beforeend', `<option value="${s.subject_id}">${s.subject_name}</option>`);
+                    $(subjectSelect).append(new Option(s.subject_name, s.subject_id));
                 });
+                if (data.length === 1) {
+                    $(subjectSelect).val(data[0].subject_id).trigger('change');
+                } else {
+                    $(subjectSelect).trigger('change');
+                }
             });
     });
 
-    subjectSelect.addEventListener('change', function() {
+    $(subjectSelect).on('change', function() {
         const classId = classSelect.value;
         const subjectId = this.value;
-        chapterSelect.innerHTML = '<option value="">Select Chapter</option>';
-        topicSelect.innerHTML = '<option value="">Select Topic</option>';
+        $(chapterSelect).empty().append('<option value="all">All Chapters</option>').val(null).trigger('change');
+        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change');
+        allChapterIds = [];
+        allTopicIds = [];
+        resetCounts();
         if (!classId || !subjectId) return;
         fetch(`get_chapters.php?class_id=${classId}&subject_id=${subjectId}`)
             .then(r => r.json())
             .then(data => {
                 if (Array.isArray(data)) {
+                    allChapterIds = data.map(c => c.chapter_id);
                     data.forEach(c => {
-                        chapterSelect.insertAdjacentHTML('beforeend', `<option value="${c.chapter_id}">${c.chapter_name}</option>`);
+                        $(chapterSelect).append(new Option(c.chapter_name, c.chapter_id));
                     });
+                    if (data.length === 1) {
+                        $(chapterSelect).val([data[0].chapter_id]).trigger('change');
+                    } else {
+                        $(chapterSelect).trigger('change');
+                    }
                 }
             });
     });
 
-    chapterSelect.addEventListener('change', function() {
-        const chapterId = this.value;
-        topicSelect.innerHTML = '<option value="">Select Topic</option>';
-        if (!chapterId) return;
-        fetch('get_topics.php?chapter_id=' + chapterId)
+    $(chapterSelect).on('change', function() {
+        handleAllOption(chapterSelect);
+        const chapterIds = getSelectedValues(chapterSelect, allChapterIds);
+        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change');
+        allTopicIds = [];
+        if (!chapterIds.length) { resetCounts(); return; }
+        fetch('get_topics.php?chapter_ids=' + chapterIds.join(','))
             .then(r => r.json())
             .then(data => {
+                allTopicIds = data.map(t => t.topic_id);
                 data.forEach(t => {
-                    topicSelect.insertAdjacentHTML('beforeend', `<option value="${t.topic_id}">${t.topic_name}</option>`);
+                    $(topicSelect).append(new Option(t.topic_name, t.topic_id));
                 });
+                if (data.length === 1) {
+                    $(topicSelect).val([data[0].topic_id]).trigger('change');
+                } else {
+                    $(topicSelect).trigger('change');
+                }
+                updateCounts();
             });
     });
 
+    $(topicSelect).on('change', function() {
+        handleAllOption(topicSelect);
+        updateCounts();
+    });
+
     function updateCounts() {
-        const chapterId = chapterSelect.value;
-        const topicId = topicSelect.value;
-        manualWrapper.style.display = topicId ? 'block' : 'none';
-        if (!chapterId) return;
-        let url = `get_question_counts.php?chapter_ids=${chapterId}`;
-        if (topicId) url += `&topic_ids=${topicId}`;
+        const chapterIds = getSelectedValues(chapterSelect, allChapterIds);
+        const topicIds = getSelectedValues(topicSelect, allTopicIds);
+        manualWrapper.style.display = topicIds.length ? 'block' : 'none';
+        if (!chapterIds.length) return;
+        let url = `get_question_counts.php?chapter_ids=${chapterIds.join(',')}`;
+        if (topicIds.length) url += `&topic_ids=${topicIds.join(',')}`;
         fetch(url)
             .then(r => r.json())
             .then(data => {
@@ -284,13 +397,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    topicSelect.addEventListener('change', updateCounts);
-    chapterSelect.addEventListener('change', updateCounts);
-
     manualBtn.addEventListener('click', function() {
         questionLists.innerHTML = '';
-        const chapterId = chapterSelect.value;
-        const topicId = topicSelect.value;
+        const chapterIds = getSelectedValues(chapterSelect, allChapterIds);
+        const topicIds = getSelectedValues(topicSelect, allTopicIds);
         typeMap.forEach(t => {
             const block = document.createElement('div');
             block.className = 'type-block';
@@ -298,8 +408,8 @@ document.addEventListener('DOMContentLoaded', function() {
             questionLists.appendChild(block);
             const params = new URLSearchParams();
             params.append('type', t.key);
-            params.append('chapter_ids', chapterId);
-            if (topicId) params.append('topic_ids', topicId);
+            params.append('chapter_ids', chapterIds.join(','));
+            if (topicIds.length) params.append('topic_ids', topicIds.join(','));
             fetch('get_questions.php', {method:'POST', body: params})
                 .then(r => r.json())
                 .then(data => {
