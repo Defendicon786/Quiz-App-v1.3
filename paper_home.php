@@ -25,7 +25,6 @@ $header = $_SESSION['paper_header'];
     <link href="./assets/css/sidebar.css" rel="stylesheet" />
     <link id="dark-mode-style" rel="stylesheet" href="./assets/css/dark-mode.css" />
     <style>
-        .footer-text { text-align: center; margin-top: 20px; padding: 20px 0; }
         body.dark-mode .main { background: transparent; }
         .card { background: #1e1e2f; color: #fff; }
         .card-header.card-header-primary { background: #1e1e2f; color: #fff; border-bottom: 1px solid #11111a; }
@@ -163,7 +162,7 @@ $header = $_SESSION['paper_header'];
               </div>
             </div>
         </main>
-    <footer class="footer-text">
+    <footer class="text-center" style="text-align: center; margin-top: 20px; padding: 20px 0;">
       <p>Developed and Maintained by Sir Hassan Tariq</p>
     </footer>
   </div>
