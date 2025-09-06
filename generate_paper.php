@@ -80,19 +80,44 @@ $header = $_SESSION['paper_header'] ?? '';
 
 function fetch_questions($conn, $table, $fields, $chapterId, $topicId, $limit) {
     if ($limit <= 0 || !$conn) return [];
-    $sql = "SELECT $fields FROM $table WHERE chapter_id=?";
+
+    // Build base query for filtering by chapter and topic
+    $base = "FROM $table WHERE chapter_id=?";
     $types = 'i';
     $params = [$chapterId];
-    if ($topicId) { $sql .= " AND topic_id=?"; $types .= 'i'; $params[] = $topicId; }
-    $sql .= " ORDER BY RAND() LIMIT ?"; $types .= 'i'; $params[] = $limit;
-    $stmt = $conn->prepare($sql);
+    if ($topicId) { $base .= " AND topic_id=?"; $types .= 'i'; $params[] = $topicId; }
+
+    // Fetch all matching IDs
+    $stmt = $conn->prepare("SELECT id $base");
     if (!$stmt) return [];
     $stmt->bind_param($types, ...$params);
     $stmt->execute();
     $res = $stmt->get_result();
-    $qs = [];
-    while($row = $res->fetch_assoc()) { $qs[] = $row; }
+    $ids = [];
+    while ($row = $res->fetch_assoc()) { $ids[] = (int)$row['id']; }
     $stmt->close();
+
+    if (empty($ids)) return [];
+
+    // Randomly sample required number of IDs
+    if (count($ids) > $limit) {
+        shuffle($ids);
+        $ids = array_slice($ids, 0, $limit);
+    }
+
+    // Fetch questions for selected IDs
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $stmt = $conn->prepare("SELECT $fields FROM $table WHERE id IN ($placeholders)");
+    if (!$stmt) return [];
+    $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $qs = [];
+    while ($row = $res->fetch_assoc()) { $qs[] = $row; }
+    $stmt->close();
+
+    // Shuffle final questions to randomize output order
+    shuffle($qs);
     return $qs;
 }
 
