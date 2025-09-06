@@ -77,19 +77,41 @@ $header = $_SESSION['paper_header'] ?? '';
 
 function fetch_questions($conn, $table, $fields, $chapterId, $topicId, $limit) {
     if ($limit <= 0 || !$conn) return [];
-    $sql = "SELECT $fields FROM $table WHERE chapter_id=?";
+
+    // Step 1: Fetch matching IDs without ordering to avoid full-table sorting
+    $sql = "SELECT id FROM $table WHERE chapter_id=?";
     $types = 'i';
     $params = [$chapterId];
     if ($topicId) { $sql .= " AND topic_id=?"; $types .= 'i'; $params[] = $topicId; }
-    $sql .= " ORDER BY RAND() LIMIT ?"; $types .= 'i'; $params[] = $limit;
     $stmt = $conn->prepare($sql);
     if (!$stmt) return [];
     $stmt->bind_param($types, ...$params);
     $stmt->execute();
     $res = $stmt->get_result();
+    $ids = [];
+    while($row = $res->fetch_assoc()) { $ids[] = (int)$row['id']; }
+    $stmt->close();
+    if (empty($ids)) return [];
+
+    // Step 2: Randomly select IDs in PHP
+    shuffle($ids);
+    $ids = array_slice($ids, 0, $limit);
+
+    // Step 3: Fetch only the selected rows
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $sql = "SELECT $fields FROM $table WHERE id IN ($placeholders)";
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) return [];
+    $types = str_repeat('i', count($ids));
+    $stmt->bind_param($types, ...$ids);
+    $stmt->execute();
+    $res = $stmt->get_result();
     $qs = [];
     while($row = $res->fetch_assoc()) { $qs[] = $row; }
     $stmt->close();
+
+    // Randomize final output order
+    shuffle($qs);
     return $qs;
 }
 
