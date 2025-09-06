@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             allOption.selected = false;
-            $(select).val(values).trigger('change.select2');
+            $(select).val(values).trigger('change');
         }
     }
 
@@ -294,13 +294,23 @@ document.addEventListener('DOMContentLoaded', function() {
         return values;
     }
 
-    classSelect.addEventListener('change', function() {
+    function resetCounts() {
+        counts.mcq.textContent = 0;
+        counts.short.textContent = 0;
+        counts.essay.textContent = 0;
+        counts.fill.textContent = 0;
+        counts.numerical.textContent = 0;
+        manualWrapper.style.display = 'none';
+    }
+
+    $(classSelect).on('change', function() {
         const classId = this.value;
-        $(subjectSelect).empty().append('<option value="">Select Subject</option>').val(null).trigger('change.select2');
-        $(chapterSelect).empty().append('<option value="all">All Chapters</option>').val(null).trigger('change.select2');
-        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change.select2');
+        $(subjectSelect).empty().append('<option value="">Select Subject</option>').val(null).trigger('change');
+        $(chapterSelect).empty().append('<option value="all">All Chapters</option>').val(null).trigger('change');
+        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change');
         allChapterIds = [];
         allTopicIds = [];
+        resetCounts();
         if (!classId) return;
         fetch('get_subjects.php?class_id=' + classId)
             .then(r => r.json())
@@ -308,17 +318,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 data.forEach(s => {
                     $(subjectSelect).append(new Option(s.subject_name, s.subject_id));
                 });
-                $(subjectSelect).trigger('change.select2');
+                if (data.length === 1) {
+                    $(subjectSelect).val(data[0].subject_id).trigger('change');
+                } else {
+                    $(subjectSelect).trigger('change');
+                }
             });
     });
 
-    subjectSelect.addEventListener('change', function() {
+    $(subjectSelect).on('change', function() {
         const classId = classSelect.value;
         const subjectId = this.value;
-        $(chapterSelect).empty().append('<option value="all">All Chapters</option>').val(null).trigger('change.select2');
-        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change.select2');
+        $(chapterSelect).empty().append('<option value="all">All Chapters</option>').val(null).trigger('change');
+        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change');
         allChapterIds = [];
         allTopicIds = [];
+        resetCounts();
         if (!classId || !subjectId) return;
         fetch(`get_chapters.php?class_id=${classId}&subject_id=${subjectId}`)
             .then(r => r.json())
@@ -328,17 +343,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.forEach(c => {
                         $(chapterSelect).append(new Option(c.chapter_name, c.chapter_id));
                     });
-                    $(chapterSelect).trigger('change.select2');
+                    if (data.length === 1) {
+                        $(chapterSelect).val([data[0].chapter_id]).trigger('change');
+                    } else {
+                        $(chapterSelect).trigger('change');
+                    }
                 }
             });
     });
 
-    chapterSelect.addEventListener('change', function() {
+    $(chapterSelect).on('change', function() {
         handleAllOption(chapterSelect);
         const chapterIds = getSelectedValues(chapterSelect, allChapterIds);
-        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change.select2');
+        $(topicSelect).empty().append('<option value="all">All Topics</option>').val(null).trigger('change');
         allTopicIds = [];
-        if (!chapterIds.length) { updateCounts(); return; }
+        if (!chapterIds.length) { resetCounts(); return; }
         fetch('get_topics.php?chapter_ids=' + chapterIds.join(','))
             .then(r => r.json())
             .then(data => {
@@ -346,12 +365,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 data.forEach(t => {
                     $(topicSelect).append(new Option(t.topic_name, t.topic_id));
                 });
-                $(topicSelect).trigger('change.select2');
+                if (data.length === 1) {
+                    $(topicSelect).val([data[0].topic_id]).trigger('change');
+                } else {
+                    $(topicSelect).trigger('change');
+                }
                 updateCounts();
             });
     });
 
-    topicSelect.addEventListener('change', function() {
+    $(topicSelect).on('change', function() {
         handleAllOption(topicSelect);
         updateCounts();
     });
