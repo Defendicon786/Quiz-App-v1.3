@@ -1,4 +1,5 @@
 <?php
+include_once __DIR__ . '/../auth.php';
 $logout = isset($_SESSION['studentloggedin']) ? 'studentlogout.php' : 'instructorlogout.php';
 
 // Determine where the "Take Quiz" link should point for students
@@ -55,6 +56,9 @@ if (isset($_SESSION['studentloggedin']) && $_SESSION['studentloggedin'] === true
             <li><a href="manage_instructors.php"><i class="fas fa-user-tie"></i><span>Manage Instructors</span></a></li>
             <li><a href="manage_students.php"><i class="fas fa-user-graduate"></i><span>Manage Students</span></a></li>
             <li><a href="manage_notifications.php"><i class="fas fa-bell"></i><span>Manage Notifications</span></a></li>
+            <?php if (is_super_admin()): ?>
+            <li><a href="manage_permissions.php"><i class="fas fa-lock"></i><span>Manage Access</span></a></li>
+            <?php endif; ?>
             <li><a href="paper_home.php"><i class="fas fa-file-alt"></i><span>Generate Paper</span></a></li>
             <li><a href="paper_manage.php"><i class="fas fa-users-cog"></i><span>Manage Paper Generator App</span></a></li>
             <li><a href="my_profile.php"><i class="fas fa-user"></i><span>My Profile</span></a></li>

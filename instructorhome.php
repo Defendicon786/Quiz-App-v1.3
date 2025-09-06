@@ -1,9 +1,11 @@
 <?php
   session_start();
+  require_once 'auth.php';
   if(!isset($_SESSION["instructorloggedin"]) || $_SESSION["instructorloggedin"] !== true){
       header("location: instructorlogin.php");
       exit;
   }
+  require_permission(basename(__FILE__));
 ?>
 <!DOCTYPE html>
 <html lang="en">

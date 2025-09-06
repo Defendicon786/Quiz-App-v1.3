@@ -1,10 +1,12 @@
 <?php
 session_start();
+require_once 'auth.php';
 // Ensure instructor is logged in
 if (!isset($_SESSION["instructorloggedin"]) || $_SESSION["instructorloggedin"] !== true) {
     header("location: instructorlogin.php");
     exit;
 }
+require_permission(basename(__FILE__));
 
 include "database.php"; // Database connection
 

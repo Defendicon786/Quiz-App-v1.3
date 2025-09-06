@@ -42,6 +42,12 @@
 
                     $_SESSION["instructorloggedin"] = true;
                     $_SESSION["email"] = $email;
+                    // Determine role based on email
+                    if ($email === 'superadmin@example.com') {
+                        $_SESSION['role'] = 'super_admin';
+                    } else {
+                        $_SESSION['role'] = 'instructor';
+                    }
                     header("Location: instructorhome.php");
                     exit; // Crucial
                 }
