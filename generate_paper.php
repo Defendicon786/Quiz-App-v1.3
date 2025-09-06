@@ -6,7 +6,28 @@ if (!isset($_SESSION['paperloggedin']) || $_SESSION['paperloggedin'] !== true) {
     exit;
 }
 
-require_once __DIR__ . '/lib/mpdf/vendor/autoload.php';
+require_once __DIR__ . '/logger.php';
+
+// Possible autoloader paths in priority order
+$autoloadPaths = [
+    __DIR__ . '/lib/mpdf/vendor/autoload.php',
+    __DIR__ . '/vendor/autoload.php'
+];
+$autoloadLoaded = false;
+foreach ($autoloadPaths as $autoload) {
+    if (file_exists($autoload)) {
+        require_once $autoload;
+        $autoloadLoaded = true;
+        break;
+    }
+}
+if (!$autoloadLoaded) {
+    $message = 'Unable to load required autoloader. Checked paths: lib/mpdf/vendor/autoload.php and vendor/autoload.php';
+    if (isset($logger)) {
+        $logger->error($message);
+    }
+    exit($message);
+}
 
 include 'database.php';
 
