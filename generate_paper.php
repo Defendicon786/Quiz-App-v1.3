@@ -165,12 +165,20 @@ if ($conn) {
     $conn->close();
 }
 
-$html = '<div style="text-align:center;">';
-if ($logo) $html .= '<img src="'.htmlspecialchars($logo).'" height="80"><br>';
-$html .= '<h2>'.htmlspecialchars($header).'</h2>';
-$html .= '<h3>'.htmlspecialchars($paperName).'</h3>';
-if ($paperDate) $html .= '<div>Date: '.htmlspecialchars($paperDate).'</div>';
-$html .= '</div>';
+$html = '<table style="width:100%;border:0;margin-bottom:10px;">';
+$html .= '<tr>';
+if ($logo) {
+    $html .= '<td style="width:20%;text-align:left;"><img src="'.htmlspecialchars($logo).'" height="80"></td>';
+} else {
+    $html .= '<td style="width:20%;"></td>';
+}
+$html .= '<td style="text-align:center;">';
+$html .= '<h2 style="margin:0;">'.htmlspecialchars($header).'</h2>';
+$html .= '<h3 style="margin:0;">'.htmlspecialchars($paperName).'</h3>';
+if ($paperDate) $html .= '<div style="margin-top:4px;">Date: '.htmlspecialchars($paperDate).'</div>';
+$html .= '</td>';
+$html .= '</tr>';
+$html .= '</table>';
 
 foreach ($sections as $title => $questions) {
     if (count($questions) === 0) continue;
