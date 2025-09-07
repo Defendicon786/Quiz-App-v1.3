@@ -168,15 +168,16 @@ if ($conn) {
 $html = '<table style="width:100%;border:0;margin-bottom:10px;">';
 $html .= '<tr>';
 if ($logo) {
-    $html .= '<td style="width:20%;text-align:left;"><img src="'.htmlspecialchars($logo).'" height="80"></td>';
+    $html .= '<td style="width:20%;text-align:left;"><img src="'.htmlspecialchars($logo).'" height="60"></td>';
 } else {
     $html .= '<td style="width:20%;"></td>';
 }
-$html .= '<td style="text-align:center;">';
-$html .= '<h2 style="margin:0;">'.htmlspecialchars($header).'</h2>';
-$html .= '<h3 style="margin:0;">'.htmlspecialchars($paperName).'</h3>';
-if ($paperDate) $html .= '<div style="margin-top:4px;">Date: '.htmlspecialchars($paperDate).'</div>';
+$html .= '<td style="width:60%;text-align:center;">';
+$html .= '<div style="margin:0;font-size:20px;font-weight:bold;">'.htmlspecialchars($header).'</div>';
+$html .= '<div style="margin:0;font-size:16px;">'.htmlspecialchars($paperName).'</div>';
+if ($paperDate) $html .= '<div style="margin-top:4px;font-size:14px;">Date: '.htmlspecialchars($paperDate).'</div>';
 $html .= '</td>';
+$html .= '<td style="width:20%;"></td>';
 $html .= '</tr>';
 $html .= '</table>';
 
