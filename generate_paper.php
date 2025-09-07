@@ -165,10 +165,10 @@ if ($conn) {
     $conn->close();
 }
 
-$html = '<table style="width:100%;border:0;margin-bottom:10px;">';
+$html = '<table style="width:100%;border:0;margin-bottom:5px;">';
 $html .= '<tr>';
 if ($logo) {
-    $html .= '<td style="width:20%;text-align:left;"><img src="'.htmlspecialchars($logo).'" height="60"></td>';
+    $html .= '<td style="width:20%;text-align:left;"><img src="'.htmlspecialchars($logo).'" height="50"></td>';
 } else {
     $html .= '<td style="width:20%;"></td>';
 }
@@ -198,7 +198,7 @@ foreach ($sections as $title => $questions) {
     $html .= '</ol>';
 }
 
-$mpdf = new \Mpdf\Mpdf();
+$mpdf = new \Mpdf\Mpdf(['margin_top' => 5]);
 $mpdf->WriteHTML($html);
 
 // Remove previously generated PDF if it exists
