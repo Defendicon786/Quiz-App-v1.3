@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once 'includes/auth.php';
+requirePermission();
 ob_start();
 
 // Serve the previously generated PDF when requested

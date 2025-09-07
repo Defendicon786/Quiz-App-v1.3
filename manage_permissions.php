@@ -6,16 +6,19 @@ include 'database.php';
 $available_pages = [
     'instructorhome.php' => 'Instructor Home',
     'manage_classes_subjects.php' => 'Manage Classes & Subjects',
-    'questionfeed.php' => 'Feed Questions',
-    'view_questions.php' => 'Questions Bank',
+    'questionfeed.php' => 'Question Feed',
+    'view_questions.php' => 'View Questions',
     'quizconfig.php' => 'Set Quiz',
     'manage_quizzes.php' => 'Manage Quizzes',
-    'view_quiz_results.php' => 'View Results',
+    'view_quiz_results.php' => 'View Quiz Results',
+    'view_student_attempt.php' => 'View Student Attempt',
     'manage_instructors.php' => 'Manage Instructors',
     'manage_students.php' => 'Manage Students',
     'manage_notifications.php' => 'Manage Notifications',
     'paper_home.php' => 'Generate Paper',
+    'generate_paper.php' => 'Generate Paper PDF',
     'paper_manage.php' => 'Manage Paper Generator App',
+    'manage_permissions.php' => 'Manage Permissions',
     'my_profile.php' => 'My Profile'
 ];
 

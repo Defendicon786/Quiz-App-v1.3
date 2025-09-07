@@ -51,10 +51,10 @@ if (isset($_SESSION['studentloggedin']) && $_SESSION['studentloggedin'] === true
             <li><a href="manage_classes_subjects.php"><i class="fas fa-book"></i><span>Manage Classes &amp; Subjects</span></a></li>
             <?php endif; ?>
             <?php if(canAccess('questionfeed.php')): ?>
-            <li><a href="questionfeed.php"><i class="fas fa-upload"></i><span>Feed Questions</span></a></li>
+            <li><a href="questionfeed.php"><i class="fas fa-upload"></i><span>Question Feed</span></a></li>
             <?php endif; ?>
             <?php if(canAccess('view_questions.php')): ?>
-            <li><a href="view_questions.php"><i class="fas fa-database"></i><span>Questions Bank</span></a></li>
+            <li><a href="view_questions.php"><i class="fas fa-database"></i><span>View Questions</span></a></li>
             <?php endif; ?>
             <?php if(canAccess('quizconfig.php')): ?>
             <li><a href="quizconfig.php"><i class="fas fa-cog"></i><span>Set Quiz</span></a></li>
@@ -63,7 +63,7 @@ if (isset($_SESSION['studentloggedin']) && $_SESSION['studentloggedin'] === true
             <li><a href="manage_quizzes.php"><i class="fas fa-tasks"></i><span>Manage Quizzes</span></a></li>
             <?php endif; ?>
             <?php if(canAccess('view_quiz_results.php')): ?>
-            <li><a href="view_quiz_results.php"><i class="fas fa-chart-bar"></i><span>View Results</span></a></li>
+            <li><a href="view_quiz_results.php"><i class="fas fa-chart-bar"></i><span>View Quiz Results</span></a></li>
             <?php endif; ?>
             <?php if(canAccess('manage_instructors.php')): ?>
             <li><a href="manage_instructors.php"><i class="fas fa-user-tie"></i><span>Manage Instructors</span></a></li>
@@ -83,7 +83,7 @@ if (isset($_SESSION['studentloggedin']) && $_SESSION['studentloggedin'] === true
             <?php if(canAccess('my_profile.php')): ?>
             <li><a href="my_profile.php"><i class="fas fa-user"></i><span>My Profile</span></a></li>
             <?php endif; ?>
-            <?php if(isSuperAdmin()): ?>
+            <?php if(canAccess('manage_permissions.php')): ?>
             <li><a href="manage_permissions.php"><i class="fas fa-lock"></i><span>Manage Permissions</span></a></li>
             <?php endif; ?>
         <?php endif; ?>
