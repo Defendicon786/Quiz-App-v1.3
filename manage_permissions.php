@@ -73,30 +73,30 @@ $conn->close();
             <h2>Manage Permissions</h2>
             <?php echo $message; ?>
             <form method="post">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Instructor</th>
-                            <th>Allowed Pages</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($instructors as $inst): $email = $inst['email']; ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($inst['email']); ?></td>
-                            <td>
+                <div class="accordion" id="permAccordion">
+                    <?php foreach ($instructors as $index => $inst): $email = $inst['email']; ?>
+                    <div class="card">
+                        <div class="card-header" id="heading<?php echo $index; ?>">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<?php echo $index; ?>" aria-expanded="false" aria-controls="collapse<?php echo $index; ?>">
+                                    <?php echo htmlspecialchars($inst['name']); ?> (<?php echo htmlspecialchars($email); ?>)
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="collapse<?php echo $index; ?>" class="collapse" aria-labelledby="heading<?php echo $index; ?>" data-parent="#permAccordion">
+                            <div class="card-body">
                                 <?php foreach ($available_pages as $file => $label): ?>
-                                    <label style="display:block">
+                                    <label class="d-block">
                                         <input type="checkbox" name="perm[<?php echo htmlspecialchars($email); ?>][]" value="<?php echo $file; ?>" <?php echo (isset($permissions[$email]) && in_array($file, $permissions[$email])) ? 'checked' : ''; ?>>
                                         <?php echo htmlspecialchars($label); ?>
                                     </label>
                                 <?php endforeach; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Save</button>
             </form>
         </main>
         <footer class="footer-text">
@@ -105,6 +105,11 @@ $conn->close();
         </footer>
     </div>
 </div>
-<script src="./assets/js/sidebar.js"></script>
+    <!--   Core JS Files   -->
+    <script src="./assets/js/core/jquery.min.js" type="text/javascript"></script>
+    <script src="./assets/js/core/popper.min.js" type="text/javascript"></script>
+    <script src="./assets/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
+    <script src="./assets/js/material-kit.js?v=2.0.4" type="text/javascript"></script>
+    <script src="./assets/js/sidebar.js"></script>
 </body>
 </html>
