@@ -1,10 +1,6 @@
 <?php
-session_start();
-// Ensure instructor is logged in
-if (!isset($_SESSION["instructorloggedin"]) || $_SESSION["instructorloggedin"] !== true) {
-    header("location: instructorlogin.php");
-    exit;
-}
+require_once 'includes/auth.php';
+requirePermission();
 
 include "database.php";
 

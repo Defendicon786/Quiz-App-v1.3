@@ -6,14 +6,8 @@ ini_set('display_errors', 1);
 // Start output buffering
 ob_start();
 
-// Start session
-session_start();
-
-// Authentication check
-if (!isset($_SESSION["instructorloggedin"]) || $_SESSION["instructorloggedin"] !== true) {
-    header("location: instructorlogin.php");
-    exit;
-}
+require_once 'includes/auth.php';
+requirePermission();
 
 include "database.php"; // Include database connection
 

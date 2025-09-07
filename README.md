@@ -124,6 +124,8 @@ git clone https://github.com/ft-abhishekgupta/php-mysql-onlinequizportal
     * Open **localhost/instructorlogin.php** : For Admin Panel
         * Username : instructor@gmail.com
         * Password : password
+        * Super Admin Username : superadmin@example.com
+        * Super Admin Password : superadmin
     * Open **localhost/studentlogin.php** : For Students Panel
         * Username : 123
         * Password : 123
