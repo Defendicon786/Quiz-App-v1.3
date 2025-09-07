@@ -62,9 +62,14 @@ $conn->close();
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,700|Material+Icons" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="./assets/css/material-kit.css?v=2.0.4" rel="stylesheet" />
+    <link href="./assets/css/modern.css" rel="stylesheet" />
+    <link href="./assets/css/navbar.css" rel="stylesheet" />
+    <link href="./assets/css/portal.css" rel="stylesheet" />
+    <link href="./assets/css/manage.css" rel="stylesheet" />
     <link href="./assets/css/sidebar.css" rel="stylesheet" />
+    <link id="dark-mode-style" rel="stylesheet" href="./assets/css/dark-mode.css" />
 </head>
-<body>
+<body class="dark-mode">
 <div class="layout">
     <?php include './includes/sidebar.php'; ?>
     <div class="main">
@@ -76,12 +81,13 @@ $conn->close();
                 <div class="accordion" id="permAccordion">
                     <?php foreach ($instructors as $index => $inst): $email = $inst['email']; ?>
                     <div class="card">
-                        <div class="card-header" id="heading<?php echo $index; ?>">
-                            <h5 class="mb-0">
-                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse<?php echo $index; ?>" aria-expanded="false" aria-controls="collapse<?php echo $index; ?>">
-                                    <?php echo htmlspecialchars($inst['name']); ?> (<?php echo htmlspecialchars($email); ?>)
-                                </button>
-                            </h5>
+                        <div class="card-header card-header-primary" id="heading<?php echo $index; ?>">
+                            <h4 class="card-title mb-0">
+                                <a class="d-flex justify-content-between align-items-center collapsed" data-toggle="collapse" href="#collapse<?php echo $index; ?>" aria-expanded="false" aria-controls="collapse<?php echo $index; ?>">
+                                    <span><?php echo htmlspecialchars($inst['name']); ?> (<?php echo htmlspecialchars($email); ?>)</span>
+                                    <i class="fas fa-chevron-down toggle-arrow"></i>
+                                </a>
+                            </h4>
                         </div>
                         <div id="collapse<?php echo $index; ?>" class="collapse" aria-labelledby="heading<?php echo $index; ?>" data-parent="#permAccordion">
                             <div class="card-body">
@@ -110,6 +116,7 @@ $conn->close();
     <script src="./assets/js/core/popper.min.js" type="text/javascript"></script>
     <script src="./assets/js/core/bootstrap-material-design.min.js" type="text/javascript"></script>
     <script src="./assets/js/material-kit.js?v=2.0.4" type="text/javascript"></script>
+    <script src="./assets/js/dark-mode.js"></script>
     <script src="./assets/js/sidebar.js"></script>
 </body>
 </html>
