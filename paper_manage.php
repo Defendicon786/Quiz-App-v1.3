@@ -1,9 +1,6 @@
 <?php
-session_start();
-if (!isset($_SESSION['instructorloggedin']) || $_SESSION['instructorloggedin'] !== true) {
-    header('Location: instructorlogin.php');
-    exit;
-}
+require_once 'includes/auth.php';
+requirePermission();
 include 'database.php';
 
 $message = '';

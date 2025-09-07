@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/auth.php';
 $logout = isset($_SESSION['studentloggedin']) ? 'studentlogout.php' : 'instructorlogout.php';
 
 // Determine where the "Take Quiz" link should point for students
@@ -46,18 +47,45 @@ if (isset($_SESSION['studentloggedin']) && $_SESSION['studentloggedin'] === true
             <li><a href="<?php echo $quiz_link; ?>"><i class="fas fa-pencil-alt"></i><span>Take Quiz</span></a></li>
             <li><a href="my_results.php"><i class="fas fa-chart-line"></i><span>My Result</span></a></li>
         <?php else: ?>
+            <?php if(canAccess('manage_classes_subjects.php')): ?>
             <li><a href="manage_classes_subjects.php"><i class="fas fa-book"></i><span>Manage Classes &amp; Subjects</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('questionfeed.php')): ?>
             <li><a href="questionfeed.php"><i class="fas fa-upload"></i><span>Feed Questions</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('view_questions.php')): ?>
             <li><a href="view_questions.php"><i class="fas fa-database"></i><span>Questions Bank</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('quizconfig.php')): ?>
             <li><a href="quizconfig.php"><i class="fas fa-cog"></i><span>Set Quiz</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('manage_quizzes.php')): ?>
             <li><a href="manage_quizzes.php"><i class="fas fa-tasks"></i><span>Manage Quizzes</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('view_quiz_results.php')): ?>
             <li><a href="view_quiz_results.php"><i class="fas fa-chart-bar"></i><span>View Results</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('manage_instructors.php')): ?>
             <li><a href="manage_instructors.php"><i class="fas fa-user-tie"></i><span>Manage Instructors</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('manage_students.php')): ?>
             <li><a href="manage_students.php"><i class="fas fa-user-graduate"></i><span>Manage Students</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('manage_notifications.php')): ?>
             <li><a href="manage_notifications.php"><i class="fas fa-bell"></i><span>Manage Notifications</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('paper_home.php')): ?>
             <li><a href="paper_home.php"><i class="fas fa-file-alt"></i><span>Generate Paper</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('paper_manage.php')): ?>
             <li><a href="paper_manage.php"><i class="fas fa-users-cog"></i><span>Manage Paper Generator App</span></a></li>
+            <?php endif; ?>
+            <?php if(canAccess('my_profile.php')): ?>
             <li><a href="my_profile.php"><i class="fas fa-user"></i><span>My Profile</span></a></li>
+            <?php endif; ?>
+            <?php if(isSuperAdmin()): ?>
+            <li><a href="manage_permissions.php"><i class="fas fa-lock"></i><span>Manage Permissions</span></a></li>
+            <?php endif; ?>
         <?php endif; ?>
         <li><a href="<?php echo $logout; ?>"><i class="fas fa-sign-out-alt"></i><span>Log Out</span></a></li>
     </ul>

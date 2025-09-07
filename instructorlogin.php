@@ -1,5 +1,5 @@
 <?php
-  session_start();
+  require_once __DIR__ . '/includes/auth.php';
   $login_error_message = ''; // Initialize error message variable
 
   // Initialize attempt tracking
@@ -42,6 +42,7 @@
 
                     $_SESSION["instructorloggedin"] = true;
                     $_SESSION["email"] = $email;
+                    $_SESSION['role'] = ($email === SUPER_ADMIN_EMAIL) ? 'superadmin' : 'instructor';
                     header("Location: instructorhome.php");
                     exit; // Crucial
                 }
