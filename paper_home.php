@@ -217,7 +217,9 @@ $header = $_SESSION['paper_header'];
             </div>
         </main>
     <footer class="footer-text">
+      <p>A Project of StudyHT.com</p>
       <p class="developer-credit">Developed and Maintained by Sir Hassan Tariq</p>
+      <p><a href="https://wa.me/923227515563?text=Hello%20Sir!" target="_blank">Contact Us</a></p>
     </footer>
   </div>
 </div>
