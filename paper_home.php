@@ -115,7 +115,7 @@ $header = $_SESSION['paper_header'];
     <main class="content">
       <?php if ($logo) { echo '<div class="text-center mb-4"><img src="' . htmlspecialchars($logo) . '" height="80"></div>'; } ?>
       <h2 class="text-center mb-4"><?php echo htmlspecialchars($header); ?></h2>
-      <div class="container">
+      <div class="container-fluid px-4">
         <div class="row justify-content-center">
           <div class="col-12 col-md-10 col-lg-8 col-xl-8">
             <div class="card">
