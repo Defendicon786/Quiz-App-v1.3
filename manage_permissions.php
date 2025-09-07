@@ -4,6 +4,7 @@ requirePermission();
 include 'database.php';
 
 $available_pages = [
+    'instructorhome.php' => 'Instructor Home',
     'manage_classes_subjects.php' => 'Manage Classes & Subjects',
     'questionfeed.php' => 'Feed Questions',
     'view_questions.php' => 'Questions Bank',
