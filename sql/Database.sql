@@ -1190,7 +1190,8 @@ INSERT INTO `instructorinfo` (`name`, `email`, `password`) VALUES
 ('Hassan Tariq', 'Hassan.tariq771@gmail.com', 'hassan@nps'),
 ('Mam Nosheen', 'nosheen@nps.com', '123'),
 ('Mam Romaisa', 'romaisa@nps.com', '123'),
-('Test Instructor', 'test@test.com', '123456789');
+('Test Instructor', 'test@test.com', '123456789'),
+('Super Admin', 'superadmin@example.com', 'superadmin');
 
 -- --------------------------------------------------------
 
