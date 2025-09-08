@@ -179,7 +179,17 @@ $conn->close();
         .summary-box.incorrect { background-color:#c62828; }
         .summary-box.manual { background-color:#1565c0; }
         .back-button { margin-bottom:20px; }
-        @media print { .no-print { display:none !important; } }
+        @media print {
+            .no-print { display:none !important; }
+            body, .question-card .card-header, .option-label, .correct-option,
+            .incorrect-option, .answer-info, .summary-box {
+                color:#000 !important;
+                background:#fff !important;
+            }
+            .selected-option, .correct-option, .incorrect-option {
+                border-left-color:#000 !important;
+            }
+        }
     </style>
 </head>
 <body class="dark-mode">
