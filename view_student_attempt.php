@@ -357,22 +357,25 @@ $conn->close();
                                             $options = ['A' => $response['optiona'], 'B' => $response['optionb'], 
                                                        'C' => $response['optionc'], 'D' => $response['optiond']];
                                             
+                                            $student_choice = strtoupper(trim($response['response'] ?? ''));
+                                            $correct_choice = strtoupper(trim($response['correct_answer'] ?? ''));
                                             foreach ($options as $key => $option):
+                                                $key_upper = strtoupper($key);
                                                 $option_class = '';
-                                                if ($response['response'] == $key && $key == $response['correct_answer']) {
+                                                if ($student_choice === $key_upper && $key_upper === $correct_choice) {
                                                     $option_class = 'correct-option';
-                                                } elseif ($response['response'] == $key && $key != $response['correct_answer']) {
+                                                } elseif ($student_choice === $key_upper && $key_upper !== $correct_choice) {
                                                     $option_class = 'incorrect-option';
-                                                } elseif ($key == $response['correct_answer']) {
+                                                } elseif ($key_upper === $correct_choice) {
                                                     $option_class = 'correct-option';
                                                 }
                                             ?>
                                             <div class="option-label <?php echo $option_class; ?>">
                                                 <strong><?php echo $key; ?>:</strong> <?php echo htmlspecialchars($option); ?>
-                                                <?php if ($response['response'] == $key): ?>
+                                                <?php if ($student_choice === $key_upper): ?>
                                                     <span class="float-right"><i class="material-icons">check</i> Selected</span>
                                                 <?php endif; ?>
-                                                <?php if ($key == $response['correct_answer']): ?>
+                                                <?php if ($key_upper === $correct_choice): ?>
                                                     <span class="float-right mr-3"><i class="material-icons">star</i> Correct</span>
                                                 <?php endif; ?>
                                             </div>
