@@ -179,7 +179,25 @@ $conn->close();
         .summary-box.incorrect { background-color:#c62828; }
         .summary-box.manual { background-color:#1565c0; }
         .back-button { margin-bottom:20px; }
-        @media print { .no-print { display:none !important; } }
+        @media print {
+            .no-print { display:none !important; }
+            body, body * {
+                color:#000 !important;
+                background:#fff !important;
+            }
+            .correct-option {
+                color:#2e7d32 !important;
+                border-left-color:#2e7d32 !important;
+            }
+            .incorrect-option {
+                color:#c62828 !important;
+                border-left-color:#c62828 !important;
+            }
+            .summary-box.correct { color:#2e7d32 !important; }
+            .summary-box.incorrect { color:#c62828 !important; }
+            .card-header-success span { color:#2e7d32 !important; }
+            .card-header-danger span { color:#c62828 !important; }
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -287,20 +305,33 @@ $conn->close();
                             $incorrect_count = 0;
                             $manual_count = 0;
                             
-                            if ($responses->num_rows > 0): 
+                            if ($responses->num_rows > 0):
                                 while ($response = $responses->fetch_assoc()):
-                                    if ($response['status'] == 'correct') $correct_count++;
-                                    elseif ($response['status'] == 'incorrect') $incorrect_count++;
+                                    // Determine correctness in PHP to avoid DB comparison issues
+                                    $status = $response['status'];
+                                    if (in_array($response['qtype'], ['a','b','c','d'])) {
+                                        $student_ans = strtoupper(trim($response['response'] ?? ''));
+                                        $correct_ans = strtoupper(trim($response['correct_answer'] ?? ''));
+                                        if ($student_ans !== '') {
+                                            $status = ($student_ans === $correct_ans) ? 'correct' : 'incorrect';
+                                        }
+                                    }
+                                    // Update counts based on resolved status
+                                    if ($status == 'correct') $correct_count++;
+                                    elseif ($status == 'incorrect') $incorrect_count++;
                                     else $manual_count++;
-                                    
+
+                                    // Set header class for display
                                     $card_header_class = '';
-                                    if ($response['status'] == 'correct') {
+                                    if ($status == 'correct') {
                                         $card_header_class = 'card-header-success';
-                                    } elseif ($response['status'] == 'incorrect') {
+                                    } elseif ($status == 'incorrect') {
                                         $card_header_class = 'card-header-danger';
                                     } else {
                                         $card_header_class = 'card-header-warning';
                                     }
+                                    // store status for later use in template
+                                    $response['status'] = $status;
                             ?>
                             <div class="question-card">
                                 <div class="card-header <?php echo $card_header_class; ?>">
@@ -326,22 +357,25 @@ $conn->close();
                                             $options = ['A' => $response['optiona'], 'B' => $response['optionb'], 
                                                        'C' => $response['optionc'], 'D' => $response['optiond']];
                                             
+                                            $student_choice = strtoupper(trim($response['response'] ?? ''));
+                                            $correct_choice = strtoupper(trim($response['correct_answer'] ?? ''));
                                             foreach ($options as $key => $option):
+                                                $key_upper = strtoupper($key);
                                                 $option_class = '';
-                                                if ($response['response'] == $key && $key == $response['correct_answer']) {
+                                                if ($student_choice === $key_upper && $key_upper === $correct_choice) {
                                                     $option_class = 'correct-option';
-                                                } elseif ($response['response'] == $key && $key != $response['correct_answer']) {
+                                                } elseif ($student_choice === $key_upper && $key_upper !== $correct_choice) {
                                                     $option_class = 'incorrect-option';
-                                                } elseif ($key == $response['correct_answer']) {
+                                                } elseif ($key_upper === $correct_choice) {
                                                     $option_class = 'correct-option';
                                                 }
                                             ?>
                                             <div class="option-label <?php echo $option_class; ?>">
                                                 <strong><?php echo $key; ?>:</strong> <?php echo htmlspecialchars($option); ?>
-                                                <?php if ($response['response'] == $key): ?>
+                                                <?php if ($student_choice === $key_upper): ?>
                                                     <span class="float-right"><i class="material-icons">check</i> Selected</span>
                                                 <?php endif; ?>
-                                                <?php if ($key == $response['correct_answer']): ?>
+                                                <?php if ($key_upper === $correct_choice): ?>
                                                     <span class="float-right mr-3"><i class="material-icons">star</i> Correct</span>
                                                 <?php endif; ?>
                                             </div>
