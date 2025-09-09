@@ -181,14 +181,22 @@ $conn->close();
         .back-button { margin-bottom:20px; }
         @media print {
             .no-print { display:none !important; }
-            body, .question-card .card-header, .option-label, .correct-option,
-            .incorrect-option, .answer-info, .summary-box {
+            body, body * {
                 color:#000 !important;
                 background:#fff !important;
             }
-            .selected-option, .correct-option, .incorrect-option {
-                border-left-color:#000 !important;
+            .correct-option {
+                color:#2e7d32 !important;
+                border-left-color:#2e7d32 !important;
             }
+            .incorrect-option {
+                color:#c62828 !important;
+                border-left-color:#c62828 !important;
+            }
+            .summary-box.correct { color:#2e7d32 !important; }
+            .summary-box.incorrect { color:#c62828 !important; }
+            .card-header-success span { color:#2e7d32 !important; }
+            .card-header-danger span { color:#c62828 !important; }
         }
     </style>
 </head>
