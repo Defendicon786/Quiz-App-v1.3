@@ -305,20 +305,33 @@ $conn->close();
                             $incorrect_count = 0;
                             $manual_count = 0;
                             
-                            if ($responses->num_rows > 0): 
+                            if ($responses->num_rows > 0):
                                 while ($response = $responses->fetch_assoc()):
-                                    if ($response['status'] == 'correct') $correct_count++;
-                                    elseif ($response['status'] == 'incorrect') $incorrect_count++;
+                                    // Determine correctness in PHP to avoid DB comparison issues
+                                    $status = $response['status'];
+                                    if (in_array($response['qtype'], ['a','b','c','d'])) {
+                                        $student_ans = strtoupper(trim($response['response'] ?? ''));
+                                        $correct_ans = strtoupper(trim($response['correct_answer'] ?? ''));
+                                        if ($student_ans !== '') {
+                                            $status = ($student_ans === $correct_ans) ? 'correct' : 'incorrect';
+                                        }
+                                    }
+                                    // Update counts based on resolved status
+                                    if ($status == 'correct') $correct_count++;
+                                    elseif ($status == 'incorrect') $incorrect_count++;
                                     else $manual_count++;
-                                    
+
+                                    // Set header class for display
                                     $card_header_class = '';
-                                    if ($response['status'] == 'correct') {
+                                    if ($status == 'correct') {
                                         $card_header_class = 'card-header-success';
-                                    } elseif ($response['status'] == 'incorrect') {
+                                    } elseif ($status == 'incorrect') {
                                         $card_header_class = 'card-header-danger';
                                     } else {
                                         $card_header_class = 'card-header-warning';
                                     }
+                                    // store status for later use in template
+                                    $response['status'] = $status;
                             ?>
                             <div class="question-card">
                                 <div class="card-header <?php echo $card_header_class; ?>">
