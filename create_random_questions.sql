@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS random_quiz_questions (
   serialnumber int(11) NOT NULL,
   PRIMARY KEY (quizid, qtype, qid),
   CONSTRAINT fk_random_quiz_quizid FOREIGN KEY (quizid) REFERENCES quizconfig(quizid) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4; 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

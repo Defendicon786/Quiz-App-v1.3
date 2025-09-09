@@ -22,14 +22,14 @@ echo "<ul>";
 echo "<li>random_quiz_questions table exists: " . ($table_result->num_rows > 0 ? "Yes" : "No") . "</li>";
 
 // If the table doesn't exist, attempt to create it
-if ($table_result->num_rows == 0) {
-    $create_sql = "CREATE TABLE IF NOT EXISTS random_quiz_questions (
-      quizid int(11) NOT NULL,
-      qtype varchar(20) NOT NULL,
-      qid int(11) NOT NULL,
-      serialnumber int(11) NOT NULL,
-      PRIMARY KEY (quizid, qtype, qid)
-    )";
+    if ($table_result->num_rows == 0) {
+        $create_sql = "CREATE TABLE IF NOT EXISTS random_quiz_questions (
+          quizid int(11) NOT NULL,
+          qtype varchar(20) NOT NULL,
+          qid int(11) NOT NULL,
+          serialnumber int(11) NOT NULL,
+          PRIMARY KEY (quizid, qtype, qid)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
     
     if ($conn->query($create_sql)) {
         echo "<li style='color: green;'>Successfully created random_quiz_questions table!</li>";

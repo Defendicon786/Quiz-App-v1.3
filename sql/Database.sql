@@ -151,7 +151,7 @@ CREATE TABLE `dropdown` (
   `answer` varchar(255) NOT NULL,
   `chapter_id` int(11) DEFAULT NULL,
   `topic_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -165,7 +165,7 @@ CREATE TABLE `essay` (
   `answer` text NOT NULL,
   `chapter_id` int(11) DEFAULT NULL,
   `topic_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `essay`
@@ -235,7 +235,7 @@ CREATE TABLE `fillintheblanks` (
   `answer` varchar(255) NOT NULL,
   `chapter_id` int(11) DEFAULT NULL,
   `topic_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `fillintheblanks`
@@ -1209,7 +1209,7 @@ CREATE TABLE `mcqdb` (
   `answer` char(1) NOT NULL,
   `chapter_id` int(11) DEFAULT NULL,
   `topic_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `mcqdb`
@@ -3392,7 +3392,7 @@ CREATE TABLE `numericaldb` (
   `answer` int(11) NOT NULL,
   `chapter_id` int(11) DEFAULT NULL,
   `topic_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -3621,7 +3621,7 @@ CREATE TABLE `random_quiz_questions` (
   `qtype` varchar(20) NOT NULL,
   `qid` int(11) NOT NULL,
   `serialnumber` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `random_quiz_questions`
@@ -3854,7 +3854,7 @@ CREATE TABLE `response` (
   `qid` int(11) NOT NULL,
   `response` text NOT NULL,
   `serialnumber` int(11) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `response`
@@ -6377,7 +6377,7 @@ CREATE TABLE `shortanswer` (
   `answer` text NOT NULL,
   `chapter_id` int(11) DEFAULT NULL,
   `topic_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `shortanswer`
