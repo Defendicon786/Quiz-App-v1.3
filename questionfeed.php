@@ -664,6 +664,9 @@ function getChapters($conn, $class_id, $subject_id) {
       .question-form .form-control {
         color: #fff;
       }
+      .bulk-upload-section input[type="file"] {
+        display: none;
+      }
     </style>
   </head>
   <body class="dark-mode">
@@ -681,6 +684,11 @@ function getChapters($conn, $class_id, $subject_id) {
                 <h4 class="card-title"><?php echo htmlspecialchars($page_title); ?></h4>
               </div>
               <p class="description text-center">Select the type of question, input the required fields and then press <?php echo strtolower($submit_button_text); ?>.</p>
+              <div class="bulk-upload-section text-center mt-4 mb-2">
+                <h5>Bulk Upload MCQs</h5>
+                <label for="bulk_upload_file" class="btn btn-secondary">Excel/CSV File</label>
+                <input type="file" id="bulk_upload_file" name="bulk_upload_file" accept=".csv,.xls,.xlsx" hidden>
+              </div>
               <?php if (!empty($feedback_message)) echo $feedback_message; // Display feedback message here ?>
               <div class="row tab-structure-row">
                 <div class="col-md-4">
