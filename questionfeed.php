@@ -23,7 +23,25 @@ $q_type_active = 'a'; // Default active tab (mcq)
 $js_for_chapters = ""; // Will store JavaScript for dynamic chapter loading
 
 // Initialize feedback message
-if (isset($_GET['success']) && $_GET['success'] == '1') {
+if (isset($_GET['error'])) {
+    switch ($_GET['error']) {
+        case 'missing_autoload':
+            $feedback_message = '<p class="h6 text-center" style="color:red;">Required system libraries are missing. Please contact the administrator.</p>';
+            break;
+        case 'parse_failed':
+            $feedback_message = '<p class="h6 text-center" style="color:red;">Failed to parse the uploaded file. Ensure it is in the correct format.</p>';
+            break;
+        case 'no_questions':
+            $feedback_message = '<p class="h6 text-center" style="color:red;">No questions were found in the uploaded file.</p>';
+            break;
+        default:
+            $feedback_message = '<p class="h6 text-center" style="color:red;">An error occurred while processing the upload.</p>';
+            break;
+    }
+    if (isset($_GET['type'])) {
+        $q_type_active = $_GET['type'];
+    }
+} elseif (isset($_GET['success']) && $_GET['success'] == '1') {
     $feedback_message = '<p class="h6 text-center" style="color:green;">Question added successfully! You can add another question.</p>';
     if (isset($_GET['type'])) {
         $q_type_active = $_GET['type'];
