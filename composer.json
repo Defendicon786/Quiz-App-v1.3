@@ -6,11 +6,12 @@
         "php": ">=7.2",
         "mpdf/mpdf": "^8.1",
         "vlucas/phpdotenv": "^5.5",
-        "monolog/monolog": "^2.9"
+        "monolog/monolog": "^2.9",
+        "phpoffice/phpspreadsheet": "^1.29"
     },
     "autoload": {
         "psr-4": {
             "QuizPortal\\": "src/"
         }
     }
-} 
+}

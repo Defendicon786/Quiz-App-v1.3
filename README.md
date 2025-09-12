@@ -23,6 +23,8 @@ Question paper is generated **dynamically and randomly** when a student clicks o
 1. Question paper Requests using RPC
 1. Fault tolerance
 
+1. Bulk upload MCQs via Excel/CSV
+
 ### Technology Used
 * HTML
 * CSS
