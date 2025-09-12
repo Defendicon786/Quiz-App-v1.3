@@ -6,8 +6,7 @@ if (isset($_SESSION['paperloggedin']) && $_SESSION['paperloggedin'] === true) {
     exit;
 }
 
-$login_error = $_SESSION['paper_login_error'] ?? '';
-unset($_SESSION['paper_login_error']);
+$login_error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     include 'database.php';
@@ -29,28 +28,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $user['is_active'] = 0;
                 }
                 if ((!empty($user['activated_on']) && $today < $user['activated_on']) || !$user['is_active']) {
-                    $_SESSION['paper_login_error'] = 'Account inactive. Please contact administrator.';
-                    header('Location: paper_login.php');
+                    $login_error = 'Account inactive. Please contact administrator.';
+                } else {
+                    $_SESSION['paperloggedin'] = true;
+                    $_SESSION['paper_user_id'] = $user['id'];
+                    $_SESSION['paper_logo'] = $user['logo'];
+                    $_SESSION['paper_header'] = $user['header'];
+                    $_SESSION['paper_user_name'] = $user['name'];
+                    header('Location: paper_home.php');
                     exit;
                 }
-                $_SESSION['paperloggedin'] = true;
-                $_SESSION['paper_user_id'] = $user['id'];
-                $_SESSION['paper_logo'] = $user['logo'];
-                $_SESSION['paper_header'] = $user['header'];
-                $_SESSION['paper_user_name'] = $user['name'];
-                header('Location: paper_home.php');
-                exit;
             } else {
-                $_SESSION['paper_login_error'] = 'Invalid credentials';
-                header('Location: paper_login.php');
-                exit;
+                $login_error = 'Invalid credentials';
             }
+            $stmt->close();
+        } else {
+            $login_error = 'An error occurred. Please try again.';
         }
         $conn->close();
     } else {
-        $_SESSION['paper_login_error'] = 'Please enter email and password';
-        header('Location: paper_login.php');
-        exit;
+        $login_error = 'Please enter email and password';
     }
 }
 ?>
