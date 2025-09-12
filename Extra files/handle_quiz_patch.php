@@ -49,7 +49,7 @@ if (!tableExists($conn, 'random_quiz_questions')) {
         qid int(11) NOT NULL,
         serialnumber int(11) NOT NULL,
         PRIMARY KEY (quizid, qtype, qid)
-    )";
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
     
     if ($conn->query($create_table_sql)) {
         echo "<div style='color:green;'>Successfully created random_quiz_questions table!</div>";
