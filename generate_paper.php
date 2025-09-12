@@ -165,7 +165,10 @@ if ($conn) {
     $conn->close();
 }
 
-$html = '<table style="width:100%;border:0;margin-bottom:5px;">';
+// Base styles to keep text compact so more questions fit per page
+// Reduced section heading size so titles like "MCQs" and "Short Questions" take up less space
+$html = '<style>body{font-size:11pt;} h4{font-size:12pt;margin-bottom:4px;} ol{margin-top:4px;padding-left:18px;} li{margin-bottom:4px;}</style>';
+$html .= '<table style="width:100%;border:0;margin-bottom:5px;">';
 $html .= '<tr>';
 if ($logo) {
     $html .= '<td style="width:20%;text-align:left;"><img src="'.htmlspecialchars($logo).'" height="50"></td>';
@@ -198,7 +201,7 @@ foreach ($sections as $title => $questions) {
     $html .= '</ol>';
 }
 
-$mpdf = new \Mpdf\Mpdf(['margin_top' => 5]);
+$mpdf = new \Mpdf\Mpdf(['margin_top' => 5, 'default_font_size' => 11]);
 $mpdf->WriteHTML($html);
 
 // Remove previously generated PDF if it exists
