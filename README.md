@@ -114,6 +114,9 @@ git clone https://github.com/ft-abhishekgupta/php-mysql-onlinequizportal
     * Apache Server
     * MySQL
     * PHP
+    * Composer
+
+* Run `composer install` to install PHP packages (PhpSpreadsheet is required for bulk uploads)
 
 * Copy files in code to Apache Directory : ```var/www/html/```
 

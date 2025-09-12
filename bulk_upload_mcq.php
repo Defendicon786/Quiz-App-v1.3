@@ -6,7 +6,13 @@ if (!isset($_SESSION["instructorloggedin"]) || $_SESSION["instructorloggedin"] !
 }
 
 require 'database.php';
-require 'vendor/autoload.php';
+
+$autoload = __DIR__ . '/vendor/autoload.php';
+if (!file_exists($autoload)) {
+    header("Location: questionfeed.php?error=1&type=a");
+    exit;
+}
+require $autoload;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -40,7 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } else {
             // Try to read using PhpSpreadsheet for Excel files
-            $spreadsheet = IOFactory::load($file_tmp);
+            try {
+                $spreadsheet = IOFactory::load($file_tmp);
+            } catch (\Throwable $e) {
+                header("Location: questionfeed.php?error=1&type=a");
+                exit;
+            }
             $sheet = $spreadsheet->getActiveSheet();
             $rows = $sheet->toArray();
             // Skip header (first row)

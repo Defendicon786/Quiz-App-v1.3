@@ -28,6 +28,11 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
     if (isset($_GET['type'])) {
         $q_type_active = $_GET['type'];
     }
+} elseif (isset($_GET['error']) && $_GET['error'] == '1') {
+    $feedback_message = '<p class="h6 text-center" style="color:red;">Bulk upload failed. Please check your file and try again.</p>';
+    if (isset($_GET['type'])) {
+        $q_type_active = $_GET['type'];
+    }
 }
 
 // Initialize variables for form fields and edit mode
@@ -814,6 +819,7 @@ function getChapters($conn, $class_id, $subject_id) {
         <div class="form-group">
           <label for="mcq_file">Excel/CSV File</label>
           <input type="file" name="mcq_file" id="mcq_file" class="form-control" accept=".csv,.xls,.xlsx" required>
+          <small id="mcq_file_info" class="form-text text-muted">No file selected</small>
         </div>
         <div class="row align-items-end mt-3">
           <div class="col-md-4">
@@ -862,6 +868,12 @@ function getChapters($conn, $class_id, $subject_id) {
         </div>
       </div>
     </form>
+    <script>
+      document.getElementById('mcq_file').addEventListener('change', function () {
+        var info = document.getElementById('mcq_file_info');
+        info.textContent = this.files.length ? 'Selected file: ' + this.files[0].name : 'No file selected';
+      });
+    </script>
                       </div>
                       <div class="tab-pane <?php echo $active2;?>" id="tab2">
                         <form name="typeb" class="question-form" action="<?php echo $form_action; ?>" method="post">
