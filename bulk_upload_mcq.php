@@ -21,7 +21,8 @@ foreach ($autoloadPaths as $autoload) {
     }
 }
 if (!$autoloadLoaded) {
-    header("Location: questionfeed.php?error=1&type=a");
+    error_log('Bulk upload failed: missing Composer autoload.');
+    header("Location: questionfeed.php?error=missing_autoload&type=a");
     exit;
 }
 
@@ -60,7 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $spreadsheet = IOFactory::load($file_tmp);
             } catch (\Throwable $e) {
-                header("Location: questionfeed.php?error=1&type=a");
+                error_log('Bulk upload parse error: ' . $e->getMessage());
+                header("Location: questionfeed.php?error=parse_failed&type=a");
                 exit;
             }
             $sheet = $spreadsheet->getActiveSheet();
@@ -105,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-header("Location: questionfeed.php?error=1&type=a");
+error_log('Bulk upload failed: no valid questions processed.');
+header("Location: questionfeed.php?error=no_questions&type=a");
 exit;
 ?>
