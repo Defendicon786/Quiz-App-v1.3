@@ -1,6 +1,5 @@
 <?php
-require_once 'includes/auth.php';
-requirePermission();
+session_start();
 if (!isset($_SESSION['paperloggedin']) || $_SESSION['paperloggedin'] !== true) {
     header('Location: paper_login.php');
     exit;
