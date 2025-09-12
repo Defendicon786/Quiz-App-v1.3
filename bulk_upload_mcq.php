@@ -7,12 +7,23 @@ if (!isset($_SESSION["instructorloggedin"]) || $_SESSION["instructorloggedin"] !
 
 require 'database.php';
 
-$autoload = __DIR__ . '/vendor/autoload.php';
-if (!file_exists($autoload)) {
+// Try loading Composer's autoloader from common locations
+$autoloadPaths = [
+    __DIR__ . '/lib/mpdf/vendor/autoload.php',
+    __DIR__ . '/vendor/autoload.php'
+];
+$autoloadLoaded = false;
+foreach ($autoloadPaths as $autoload) {
+    if (file_exists($autoload)) {
+        require $autoload;
+        $autoloadLoaded = true;
+        break;
+    }
+}
+if (!$autoloadLoaded) {
     header("Location: questionfeed.php?error=1&type=a");
     exit;
 }
-require $autoload;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 

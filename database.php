@@ -8,14 +8,20 @@ if (session_status() === PHP_SESSION_NONE) {
 date_default_timezone_set('Asia/Karachi'); // Replace with your timezone
 
 // Load Composer dependencies and environment variables if available.
-$autoload = __DIR__ . '/vendor/autoload.php';
-if (file_exists($autoload)) {
-    require_once $autoload;
-
-    if (class_exists('Dotenv\\Dotenv')) {
-        $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
-        $dotenv->safeLoad();
+$autoloadPaths = [
+    __DIR__ . '/lib/mpdf/vendor/autoload.php',
+    __DIR__ . '/vendor/autoload.php'
+];
+foreach ($autoloadPaths as $autoload) {
+    if (file_exists($autoload)) {
+        require_once $autoload;
+        break;
     }
+}
+
+if (class_exists('Dotenv\\Dotenv')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+    $dotenv->safeLoad();
 }
 
 require_once __DIR__ . '/logger.php';
