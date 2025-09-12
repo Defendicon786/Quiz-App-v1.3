@@ -59,7 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Try to read using PhpSpreadsheet for Excel files
             try {
-                $spreadsheet = IOFactory::load($file_tmp);
+                $reader = IOFactory::createReaderForFile($file_tmp);
+                $reader->setReadDataOnly(true);
+                $spreadsheet = $reader->load($file_tmp);
             } catch (\Throwable $e) {
                 error_log('Bulk upload parse error: ' . $e->getMessage());
                 header("Location: questionfeed.php?error=parse_failed&type=a");
