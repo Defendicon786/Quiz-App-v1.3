@@ -28,8 +28,21 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
     if (isset($_GET['type'])) {
         $q_type_active = $_GET['type'];
     }
-} elseif (isset($_GET['error']) && $_GET['error'] == '1') {
-    $feedback_message = '<p class="h6 text-center" style="color:red;">Bulk upload failed. Please check your file and try again.</p>';
+} elseif (isset($_GET['error'])) {
+    switch ($_GET['error']) {
+        case 'missing_autoload':
+            $feedback_message = '<p class="h6 text-center" style="color:red;">Required libraries are missing on the server. Please contact the administrator.</p>';
+            break;
+        case 'parse_failed':
+            $feedback_message = '<p class="h6 text-center" style="color:red;">Unable to read the uploaded file. Ensure it is a valid CSV or Excel file.</p>';
+            break;
+        case 'no_questions':
+            $feedback_message = '<p class="h6 text-center" style="color:red;">No valid questions were found in the uploaded file.</p>';
+            break;
+        default:
+            $feedback_message = '<p class="h6 text-center" style="color:red;">Bulk upload failed. Please check your file and try again.</p>';
+            break;
+    }
     if (isset($_GET['type'])) {
         $q_type_active = $_GET['type'];
     }
