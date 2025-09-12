@@ -18,7 +18,7 @@ $sql = "CREATE TABLE IF NOT EXISTS random_quiz_questions (
   qid int(11) NOT NULL,
   serialnumber int(11) NOT NULL,
   PRIMARY KEY (quizid, qtype, qid)
-)";
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
 
 echo "<h2>Creating random_quiz_questions table</h2>";
 echo "SQL: " . htmlspecialchars($sql) . "<br><br>";
