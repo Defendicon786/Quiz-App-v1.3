@@ -23,6 +23,8 @@ Question paper is generated **dynamically and randomly** when a student clicks o
 1. Question paper Requests using RPC
 1. Fault tolerance
 
+1. Bulk upload MCQs via Excel/CSV
+
 ### Technology Used
 * HTML
 * CSS
@@ -112,6 +114,9 @@ git clone https://github.com/ft-abhishekgupta/php-mysql-onlinequizportal
     * Apache Server
     * MySQL
     * PHP
+    * Composer
+
+* Run `composer install` to install PHP packages (PhpSpreadsheet is required for bulk uploads)
 
 * Copy files in code to Apache Directory : ```var/www/html/```
 

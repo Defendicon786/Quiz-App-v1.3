@@ -28,6 +28,11 @@ if (isset($_GET['success']) && $_GET['success'] == '1') {
     if (isset($_GET['type'])) {
         $q_type_active = $_GET['type'];
     }
+} elseif (isset($_GET['error']) && $_GET['error'] == '1') {
+    $feedback_message = '<p class="h6 text-center" style="color:red;">Bulk upload failed. Please check your file and try again.</p>';
+    if (isset($_GET['type'])) {
+        $q_type_active = $_GET['type'];
+    }
 }
 
 // Initialize variables for form fields and edit mode
@@ -806,6 +811,69 @@ function getChapters($conn, $class_id, $subject_id) {
                             </div>
                           </div>
                         </form>
+    <!-- Bulk Upload Form -->
+    <hr>
+    <h5>Bulk Upload MCQs</h5>
+    <form action="bulk_upload_mcq.php" method="post" enctype="multipart/form-data">
+      <div class="responsive-form-container">
+        <div class="form-group">
+          <label for="mcq_file">Excel/CSV File</label>
+          <input type="file" name="mcq_file" id="mcq_file" class="form-control" accept=".csv,.xls,.xlsx" required>
+          <small id="mcq_file_info" class="form-text text-muted">No file selected</small>
+        </div>
+        <div class="row align-items-end mt-3">
+          <div class="col-md-4">
+            <div class="form-group mb-0">
+              <label for="class_id_bulk">Class</label>
+              <select name="class_id" id="class_id_bulk" class="form-control" onchange="loadQuestionFeedChapters('bulk')" required>
+                <option value="">Select Class</option>
+                <?php foreach ($class_options as $class): ?>
+                  <option value="<?php echo htmlspecialchars($class['id']); ?>"><?php echo htmlspecialchars($class['name']); ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group mb-0">
+              <label for="subject_id_bulk">Subject</label>
+              <select name="subject_id" id="subject_id_bulk" class="form-control" onchange="loadQuestionFeedChapters('bulk')" required>
+                <option value="">Select Subject</option>
+                <?php foreach ($subject_options as $subject): ?>
+                  <option value="<?php echo htmlspecialchars($subject['id']); ?>"><?php echo htmlspecialchars($subject['name']); ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group mb-0">
+              <label for="chapter_id_bulk">Chapter</label>
+              <select name="chapter_id" id="chapter_id_bulk" class="form-control" onchange="loadQuestionFeedTopics('bulk')" required>
+                <option value="">Select Chapter</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-md-4">
+            <div class="form-group mb-0">
+              <label for="topic_id_bulk">Topic (Optional)</label>
+              <select name="topic_id" id="topic_id_bulk" class="form-control">
+                <option value="">Select Topic</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-3">
+          <button type="submit" class="btn btn-primary btn-round">Upload</button>
+        </div>
+      </div>
+    </form>
+    <script>
+      document.getElementById('mcq_file').addEventListener('change', function () {
+        var info = document.getElementById('mcq_file_info');
+        info.textContent = this.files.length ? 'Selected file: ' + this.files[0].name : 'No file selected';
+      });
+    </script>
                       </div>
                       <div class="tab-pane <?php echo $active2;?>" id="tab2">
                         <form name="typeb" class="question-form" action="<?php echo $form_action; ?>" method="post">

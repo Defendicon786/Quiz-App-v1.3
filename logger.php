@@ -2,9 +2,16 @@
 use Monolog\Logger;
 use Monolog\Handler\RotatingFileHandler;
 
-$autoload = __DIR__ . '/vendor/autoload.php';
-if (file_exists($autoload)) {
-    require_once $autoload;
+// Attempt to load Composer's autoloader from common locations
+$autoloadPaths = [
+    __DIR__ . '/lib/mpdf/vendor/autoload.php',
+    __DIR__ . '/vendor/autoload.php'
+];
+foreach ($autoloadPaths as $autoload) {
+    if (file_exists($autoload)) {
+        require_once $autoload;
+        break;
+    }
 }
 
 $logDir = __DIR__ . '/logs';
