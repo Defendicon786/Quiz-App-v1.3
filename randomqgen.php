@@ -48,8 +48,6 @@ exit;
 
 function selectrand($conn1, $count, $type, $rollno, $quizid, $attempt) {
     static $serialnumber = 1;
-    // Track selected questions to avoid duplicates across calls
-    static $selected = [];
 
     if ($conn1->connect_error) {
         die("Connection failed: " . $conn1->connect_error);
@@ -78,25 +76,38 @@ function selectrand($conn1, $count, $type, $rollno, $quizid, $attempt) {
             return;
     }
 
-    $exclude = '';
-    if (isset($selected[$table]) && count($selected[$table]) > 0) {
-        $exclude_ids = implode(',', array_map('intval', $selected[$table]));
-        $exclude = " WHERE id NOT IN ($exclude_ids)";
+    // Build query to avoid selecting duplicate questions already assigned
+    $sql = "SELECT id FROM $table WHERE id NOT IN (
+                SELECT qid FROM response WHERE quizid = ? AND rollnumber = ? AND attempt = ? AND qtype = ?
+            )";
+
+    // Ensure MCQ questions have all options present
+    if ($type === 'a') {
+        $sql .= " AND optiona IS NOT NULL AND optiona <> ''"
+              . " AND optionb IS NOT NULL AND optionb <> ''"
+              . " AND optionc IS NOT NULL AND optionc <> ''"
+              . " AND optiond IS NOT NULL AND optiond <> ''";
     }
 
-    // Fetch unique questions, excluding any already selected
-    $sql = "SELECT id FROM $table" . $exclude . " ORDER BY RAND() LIMIT " . intval($count);
-    $result = $conn1->query($sql);
+    $sql .= " ORDER BY RAND() LIMIT ?";
+
+    $stmt = $conn1->prepare($sql);
+    if (!$stmt) {
+        return;
+    }
+    $stmt->bind_param("iiisi", $quizid, $rollno, $attempt, $type, $count);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result && $result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             $qid = (int)$row['id'];
 
-            $stmt = $conn1->prepare(
+            $insert = $conn1->prepare(
                 "INSERT INTO response (quizid, rollnumber, attempt, qtype, qid, serialnumber, response) VALUES (?, ?, ?, ?, ?, ?, '')"
             );
-            if ($stmt) {
-                $stmt->bind_param(
+            if ($insert) {
+                $insert->bind_param(
                     "iiisii",
                     $quizid,
                     $rollno,
@@ -105,15 +116,14 @@ function selectrand($conn1, $count, $type, $rollno, $quizid, $attempt) {
                     $qid,
                     $serialnumber
                 );
-                $stmt->execute();
-                $stmt->close();
+                $insert->execute();
+                $insert->close();
             }
 
-            // remember this question so it isn't selected again
-            $selected[$table][] = $qid;
             $serialnumber++;
         }
-        mysqli_free_result($result);
+        $result->free();
     }
+    $stmt->close();
 }
 ?>
