@@ -258,6 +258,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'edit' && isset($_GET['q_type']
     }
 }
 
+$question_text = strip_tags($question_text, '<sub><sup>');
+
 // Process form submission first, before any HTML output
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $action_type = $_POST['action'] ?? 'insert';
@@ -314,11 +316,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         return $text;
     }
-    
+
+    // Normalize Unicode subscript/superscript characters to plain text
+    function normalizeSubSuperscripts($text) {
+        $subMap = [
+            '₀' => '0', '₁' => '1', '₂' => '2', '₃' => '3', '₄' => '4',
+            '₅' => '5', '₆' => '6', '₇' => '7', '₈' => '8', '₉' => '9',
+            '₊' => '+', '₋' => '-', '₌' => '=', '₍' => '(', '₎' => ')',
+            'ₐ' => 'a', 'ₑ' => 'e', 'ₒ' => 'o', 'ₓ' => 'x', 'ₕ' => 'h',
+            'ₖ' => 'k', 'ₗ' => 'l', 'ₘ' => 'm', 'ₙ' => 'n', 'ₚ' => 'p',
+            'ₛ' => 's', 'ₜ' => 't'
+        ];
+        $supMap = [
+            '⁰' => '0', '¹' => '1', '²' => '2', '³' => '3', '⁴' => '4',
+            '⁵' => '5', '⁶' => '6', '⁷' => '7', '⁸' => '8', '⁹' => '9',
+            '⁺' => '+', '⁻' => '-', '⁼' => '=', '⁽' => '(', '⁾' => ')',
+            'ⁿ' => 'n'
+        ];
+        $map = $subMap + $supMap;
+        return strtr($text, $map);
+    }
+
     // Convert literal \r\n and \n into actual newlines for question
     $question_text_raw = $_POST['question'] ?? '';
     $question_text_fixed = fixEscapeSequences($question_text_raw);
-    $posted_question = $conn->real_escape_string(trim($question_text_fixed));
+    $question_text_fixed = normalizeSubSuperscripts($question_text_fixed);
+    $question_text_clean = strip_tags($question_text_fixed, '<sub><sup>');
+    $posted_question = $conn->real_escape_string(trim($question_text_clean));
     
     $chapter_id = isset($_POST['chapter_id']) ? intval($_POST['chapter_id']) : null;
     $topic_id = isset($_POST['topic_id']) && $_POST['topic_id'] !== '' ? intval($_POST['topic_id']) : null;
@@ -1511,6 +1535,20 @@ function getChapters($conn, $class_id, $subject_id) {
       editor.focus();
       document.execCommand(cmd, false, null);
     }
+    document.querySelectorAll('.question-editor').forEach(function(editor){
+      editor.addEventListener('paste', function(e){
+        e.preventDefault();
+        var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        var map = {
+          '₀':'0','₁':'1','₂':'2','₃':'3','₄':'4','₅':'5','₆':'6','₇':'7','₈':'8','₉':'9',
+          '⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9',
+          '₊':'+','₋':'-','₌':'=','₍':'(','₎':')','⁺':'+','⁻':'-','⁼':'=','⁽':'(','⁾':')',
+          'ₐ':'a','ₑ':'e','ₒ':'o','ₓ':'x','ₕ':'h','ₖ':'k','ₗ':'l','ₘ':'m','ₙ':'n','ₚ':'p','ₛ':'s','ₜ':'t','ⁿ':'n'
+        };
+        text = text.replace(/[₀₁₂₃₄₅₆₇₈₉⁰¹²³⁴⁵⁶⁷⁸⁹₊₋₌₍₎⁺⁻⁼⁽⁾ₐₑₒₓₕₖₗₘₙₚₛₜⁿ]/g, function(c){ return map[c] || c; });
+        document.execCommand('insertText', false, text);
+      });
+    });
     document.querySelectorAll('.question-form').forEach(function(form){
       form.addEventListener('submit', function(e){
         var editor = form.querySelector('.question-editor');
