@@ -62,6 +62,13 @@ if (!isset($table_map[$type])) {
 
 $table_info = $table_map[$type];
 $sql = "SELECT id, question FROM {$table_info['table']} WHERE chapter_id IN ($chapter_ids_str)$topic_filter";
+// Ensure MCQ questions have all options present
+if ($type === 'mcq') {
+    $sql .= " AND optiona IS NOT NULL AND optiona <> ''"
+          . " AND optionb IS NOT NULL AND optionb <> ''"
+          . " AND optionc IS NOT NULL AND optionc <> ''"
+          . " AND optiond IS NOT NULL AND optiond <> ''";
+}
 $logger->debug('SQL Query', $sql);
 
 try {

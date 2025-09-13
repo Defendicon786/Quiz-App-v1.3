@@ -76,7 +76,7 @@ if (isset($_SESSION['quiz_started']) && $_SESSION['quiz_started'] === true) {
         exit;
     }
 } else {
-    echo "<pre style='background-color: #ddddff; border: 1px solid #0000cc; padding: 10px; margin: 10px;'><strong>DEBUG: Quiz not started in session. Attempting to initialize a new quiz.</strong><br>SESSION: " . htmlspecialchars(print_r($_SESSION, true)) . "</pre>";
+    logDebug("Quiz not started in session. Attempting to initialize a new quiz.", $_SESSION);
     try {
         // Check for active quiz
         $sql = "SELECT qc.*, qc.topic_ids, c.class_name, s.subject_name,
@@ -626,6 +626,33 @@ try {
     }
     
     $question = $result->fetch_assoc();
+
+    // Ensure MCQ options are loaded
+    if ($question['qtype'] === 'a') {
+        $optionFields = ['optiona', 'optionb', 'optionc', 'optiond'];
+        $missing = false;
+        foreach ($optionFields as $field) {
+            if (!isset($question[$field]) || trim($question[$field]) === '') {
+                $missing = true;
+                break;
+            }
+        }
+        if ($missing) {
+            $optStmt = $conn->prepare("SELECT optiona, optionb, optionc, optiond FROM mcqdb WHERE id = ?");
+            if ($optStmt) {
+                $optStmt->bind_param("i", $question['qid']);
+                if ($optStmt->execute()) {
+                    $optRes = $optStmt->get_result();
+                    if ($optRow = $optRes->fetch_assoc()) {
+                        $question = array_merge($question, $optRow);
+                    }
+                    $optRes->free();
+                }
+                $optStmt->close();
+            }
+        }
+    }
+
     logDebug("Retrieved question", array(
         'type' => $question['qtype'],
         'id' => $question['qid']
