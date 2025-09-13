@@ -258,6 +258,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'edit' && isset($_GET['q_type']
     }
 }
 
+$question_text = strip_tags($question_text, '<sub><sup>');
+
 // Process form submission first, before any HTML output
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $action_type = $_POST['action'] ?? 'insert';
@@ -318,7 +320,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Convert literal \r\n and \n into actual newlines for question
     $question_text_raw = $_POST['question'] ?? '';
     $question_text_fixed = fixEscapeSequences($question_text_raw);
-    $posted_question = $conn->real_escape_string(trim($question_text_fixed));
+    $question_text_clean = strip_tags($question_text_fixed, '<sub><sup>');
+    $posted_question = $conn->real_escape_string(trim($question_text_clean));
     
     $chapter_id = isset($_POST['chapter_id']) ? intval($_POST['chapter_id']) : null;
     $topic_id = isset($_POST['topic_id']) && $_POST['topic_id'] !== '' ? intval($_POST['topic_id']) : null;
@@ -1511,6 +1514,13 @@ function getChapters($conn, $class_id, $subject_id) {
       editor.focus();
       document.execCommand(cmd, false, null);
     }
+    document.querySelectorAll('.question-editor').forEach(function(editor){
+      editor.addEventListener('paste', function(e){
+        e.preventDefault();
+        var text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        document.execCommand('insertText', false, text);
+      });
+    });
     document.querySelectorAll('.question-form').forEach(function(form){
       form.addEventListener('submit', function(e){
         var editor = form.querySelector('.question-editor');
